@@ -1,0 +1,948 @@
+domain_entities:
+  # =====================================================
+  # 1. ПОЛЬЗОВАТЕЛИ И КОМАНДЫ (Users and Teams)
+  # =====================================================
+  
+  - name: User
+    description: Пользователь системы
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор пользователя
+      - name: login
+        type: string
+        description: Логин пользователя (уникальный)
+      - name: firstName
+        type: string
+        description: Имя пользователя
+      - name: middleName
+        type: string
+        description: Отчество пользователя
+      - name: lastName
+        type: string
+        description: Фамилия пользователя
+      - name: email
+        type: string
+        description: Email пользователя (уникальный)
+      - name: passwordHash
+        type: string
+        description: Хеш пароля
+      - name: needChangePassword
+        type: bool
+        description: Флаг необходимости смены пароля при следующем входе
+      - name: isBlocked
+        type: bool
+        description: Флаг блокировки пользователя (запрет входа)
+      - name: isSuperAdmin
+        type: bool
+        description: Флаг супер-администратора (имеет все права)
+      - name: isHidden
+        type: bool
+        description: Флаг скрытого пользователя (не отображается в списках)
+    business_rules:
+      - Супер-администратор имеет неограниченный доступ ко всем функциям системы
+      - Заблокированный пользователь не может выполнить аутентификацию
+      - При флаге needChangePassword=1 пользователь обязан сменить пароль
+
+  - name: Team
+    description: Команда (группа пользователей)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор команды
+      - name: caption
+        type: string
+        description: Название команды
+      - name: description
+        type: string
+        description: Описание команды
+
+  - name: Role
+    description: Роль (набор правил доступа)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор роли
+      - name: caption
+        type: string
+        description: Название роли
+      - name: description
+        type: string
+        description: Описание роли
+    business_rules:
+      - Роль назначается пользователю в контексте конкретной команды
+      - Права доступа определяются набором правил, связанных с ролью
+
+  - name: Rule
+    description: Корневое правило для роли
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор правила
+      - name: roleId
+        type: int
+        description: Идентификатор роли
+      - name: isRootProjectCreator
+        type: bool
+        description: Право на создание корневых проектов
+    business_rules:
+      - Каждая роль может иметь несколько правил
+      - Правила определяют базовые разрешения роли
+
+  - name: RuleProject
+    description: Права на уровне проекта
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: ruleId
+        type: int
+        description: Идентификатор правила
+      - name: projectId
+        type: int
+        description: Идентификатор проекта
+      - name: isReader
+        type: bool
+        description: Право на просмотр элементов (items) проекта
+      - name: isWriter
+        type: bool
+        description: Право на создание и изменение элементов (items) проекта
+      - name: isProjectEditor
+        type: bool
+        description: Право на создание и изменение подпроектов
+      - name: isPhaseEditor
+        type: bool
+        description: Право на создание и изменение фаз
+      - name: isBoardEditor
+        type: bool
+        description: Право на создание и изменение досок
+    business_rules:
+      - Права на проекте проверяются рекурсивно для дочерних проектов
+
+  - name: RuleItemType
+    description: Права на тип элемента
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: ruleId
+        type: int
+        description: Идентификатор правила
+      - name: itemTypeId
+        type: int
+        description: Идентификатор типа элемента
+      - name: isReader
+        type: bool
+        description: Право на чтение элементов данного типа
+      - name: isWriter
+        type: bool
+        description: Право на создание и изменение элементов данного типа
+    business_rules:
+      - Действуют в сочетании с правами на проекте
+      - Для доступа к элементу необходимы оба права (проектное и тип)
+
+  - name: RuleState
+    description: Права на переходы между состояниями
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: ruleId
+        type: int
+        description: Идентификатор правила
+      - name: stateId
+        type: int
+        description: Идентификатор целевого состояния
+      - name: isStateAllowed
+        type: bool
+        description: Разрешение на перевод элемента в это состояние
+    business_rules:
+      - Проверяется после проектных прав и прав на тип
+      - Требуется для изменения состояния элемента
+
+  - name: UserTeamRole
+    description: Назначение пользователя в команду с определенной ролью
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: userId
+        type: int
+        description: Идентификатор пользователя
+      - name: teamId
+        type: int
+        description: Идентификатор команды
+      - name: roleId
+        type: int
+        description: Идентификатор роли
+    business_rules:
+      - Пользователь может иметь разные роли в разных командах
+      - Уникальность -- одна роль на пользователя в конкретной команде
+
+  # =====================================================
+  # 2. ПРОЕКТЫ И ФАЗЫ (Projects and Phases)
+  # =====================================================
+
+  - name: Project
+    description: Проект (контейнер для элементов и подпроектов)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор проекта
+      - name: parentId
+        type: int
+        description: Идентификатор родительского проекта (null для корневых)
+      - name: caption
+        type: string
+        description: Название проекта
+      - name: description
+        type: string
+        description: Описание проекта
+      - name: searchCaption
+        type: string
+        description: Нормализованное название для поиска
+      - name: searchDescription
+        type: string
+        description: Нормализованное описание для поиска
+      - name: createdAt
+        type: datetime
+        description: Дата и время создания
+      - name: updatedAt
+        type: datetime
+        description: Дата и время последнего обновления
+      - name: isArchive
+        type: bool
+        description: Флаг архивации (мягкое удаление)
+    business_rules:
+      - Проекты образуют иерархическую структуру (дерево)
+      - Архивные проекты скрыты в основном интерфейсе
+
+  - name: Phase
+    description: Фаза проекта (временной отрезок)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор фазы
+      - name: projectId
+        type: int
+        description: Идентификатор проекта
+      - name: caption
+        type: string
+        description: Название фазы
+      - name: description
+        type: string
+        description: Описание фазы
+      - name: beginDate
+        type: datetime
+        description: Дата начала фазы
+      - name: endDate
+        type: datetime
+        description: Дата окончания фазы
+      - name: isArchive
+        type: bool
+        description: Флаг архивации фазы
+      - name: searchCaption
+        type: string
+        description: Нормализованное название для поиска
+      - name: searchDescription
+        type: string
+        description: Нормализованное описание для поиска
+
+  - name: ProjectTeam
+    description: Связь проекта с командой
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: projectId
+        type: int
+        description: Идентификатор проекта
+      - name: teamId
+        type: int
+        description: Идентификатор команды
+    business_rules:
+      - Команда может быть назначена на несколько проектов
+      - Проект может иметь несколько команд
+
+  # =====================================================
+  # 3. РАБОЧИЕ ПРОЦЕССЫ (Workflows)
+  # =====================================================
+
+  - name: Workflow
+    description: Рабочий процесс (конечный автомат)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: caption
+        type: string
+        description: Название рабочего процесса
+      - name: description
+        type: string
+        description: Описание рабочего процесса
+
+  - name: State
+    description: Состояние в рабочем процессе
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: workflowId
+        type: int
+        description: Идентификатор рабочего процесса
+      - name: caption
+        type: string
+        description: Название состояния
+      - name: description
+        type: string
+        description: Описание состояния
+      - name: weight
+        type: int
+        description: Вес состояния (для метрик)
+      - name: orderNumber
+        type: int
+        description: Порядковый номер для сортировки
+      - name: isArchive
+        type: bool
+        description: Флаг архивного состояния (редко отображается)
+      - name: isQueue
+        type: bool
+        description: Флаг очереди (для определения активных работ)
+    business_rules:
+      - Архивные состояния редко отображаются в UI
+      - Состояния-очереди используются для планирования работ
+
+  - name: Edge
+    description: Переход между состояниями
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: beginStateId
+        type: int
+        description: Начальное состояние
+      - name: endStateId
+        type: int
+        description: Конечное состояние
+    business_rules:
+      - Определяет допустимые переходы в рабочем процессе
+      - Уникальность пары (beginStateId, endStateId)
+
+  # =====================================================
+  # 4. ТИПЫ ЭЛЕМЕНТОВ И ПОЛЯ (Item Types and Fields)
+  # =====================================================
+
+  - name: ItemType
+    description: Тип элемента (задача, требование, тест-кейс и т.д.)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: workflowId
+        type: int
+        description: Идентификатор рабочего процесса
+      - name: defaultStateId
+        type: int
+        description: Состояние по умолчанию для новых элементов
+      - name: caption
+        type: string
+        description: Название типа
+      - name: kind
+        type: string
+        description: |
+          Вид элемента (строго ограничено):
+          - issue: задача
+          - folder: папка
+          - test-case: тест-кейс
+          - test-cycle: тест-цикл
+          - test-run: тест-ран (выполнение)
+          - requirement: требование
+      - name: defaultContent
+        type: string
+        description: Содержимое по умолчанию (шаблон для создания новых item)
+    business_rules:
+      - Тип определяет поведение элемента в системе
+      - Каждый тип привязан к рабочему процессу
+
+  - name: FieldType
+    description: Кастомное поле для типа элемента
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: itemTypeId
+        type: int
+        description: Идентификатор типа элемента
+      - name: caption
+        type: string
+        description: Название поля
+      - name: description
+        type: string
+        description: Описание поля
+      - name: valueType
+        type: string
+        description: |
+          Тип значения:
+          - String: строка
+          - MarkdownText: текст в формате Markdown
+          - Integer: целое число
+          - Float: дробное число
+          - Bool: булев флаг
+          - DateTime: дата и время
+          - Date: дата
+          - Uri: гиперссылка
+          - Select: выпадающий список
+          - SelectMulti: множественный выбор
+          - ItemId: ссылка на элемент
+          - UserId: ссылка на пользователя
+          - ProjectId: ссылка на проект
+          - PhaseId: ссылка на фазу
+          - ItemsIds: ссылки на несколько элементов
+          - UsersIds: ссылки на нескольких пользователей
+          - ProjectsIds: ссылки на несколько проектов
+          - PhasesIds: ссылки на несколько фаз
+      - name: isBoardVisible
+        type: bool
+        description: Отображать поле на канбан-доске
+
+  - name: FieldTypePossibleValue
+    description: Возможное значение для поля типа Select/SelectMulti
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: fieldTypeId
+        type: int
+        description: Идентификатор типа поля
+      - name: value
+        type: string
+        description: Значение для выбора
+
+  # =====================================================
+  # 5. ЭЛЕМЕНТЫ (Items)
+  # =====================================================
+
+  - name: Item
+    description: Элемент (задача, требование, тест-кейс и т.д.)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: itemTypeId
+        type: int
+        description: Идентификатор типа элемента
+      - name: parentId
+        type: int
+        description: Идентификатор родительского элемента
+      - name: stateId
+        type: int
+        description: Идентификатор текущего состояния
+      - name: phaseId
+        type: int
+        description: Идентификатор фазы
+      - name: caption
+        type: string
+        description: Название элемента
+      - name: content
+        type: string
+        description: Содержимое элемента
+      - name: searchCaption
+        type: string
+        description: Нормализованное название для поиска
+      - name: searchContent
+        type: string
+        description: Нормализованное содержимое для поиска
+      - name: isDeleted
+        type: bool
+        description: Флаг удаления (мягкое удаление)
+    business_rules:
+      - Элементы образуют иерархическую структуру (дерево)
+      - Удаленные элементы скрыты в основном интерфейсе
+
+  - name: ItemField
+    description: Значение кастомного поля для элемента
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: itemId
+        type: int
+        description: Идентификатор элемента
+      - name: fieldTypeId
+        type: int
+        description: Идентификатор типа поля
+      - name: value
+        type: string
+        description: Значение поля (в сериализованном виде)
+      - name: searchValue
+        type: string
+        description: Нормализованное значение для поиска
+    business_rules:
+      - Уникальность пары (itemId, fieldTypeId)
+      - Значение хранится в формате, соответствующем valueType
+
+  - name: ItemHistory
+    description: История изменений элемента
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: itemId
+        type: int
+        description: Идентификатор элемента
+      - name: userId
+        type: int
+        description: Идентификатор пользователя, внесшего изменение
+      - name: timestamp
+        type: datetime
+        description: Время изменения
+      - name: diff
+        type: string
+        description: JSON с изменениями (diff)
+
+  - name: ItemUserState
+    description: История изменения состояний элемента пользователем
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: itemId
+        type: int
+        description: Идентификатор элемента
+      - name: userId
+        type: int
+        description: Идентификатор пользователя
+      - name: stateId
+        type: int
+        description: Идентификатор состояния
+      - name: comment
+        type: string
+        description: Комментарий к переходу
+      - name: timestamp
+        type: datetime
+        description: Время перехода
+    business_rules:
+      - Дублирует информацию из ItemHistory для удобства
+      - Оптимизирован для получения истории состояний по пользователю
+
+  # =====================================================
+  # 6. СВЯЗИ (Links)
+  # =====================================================
+
+  - name: LinkType
+    description: Тип связи между элементами
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: sourceItemTypeId
+        type: int
+        description: Исходный тип элемента
+      - name: destinationItemTypeId
+        type: int
+        description: Целевой тип элемента
+      - name: isBidirectional
+        type: bool
+        description: Флаг двунаправленной связи
+      - name: caption
+        type: string
+        description: Название типа связи
+
+  - name: ItemLink
+    description: Связь между двумя элементами
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: linkTypeId
+        type: int
+        description: Идентификатор типа связи
+      - name: sourceItemId
+        type: int
+        description: Исходный элемент
+      - name: destinationItemId
+        type: int
+        description: Целевой элемент
+    business_rules:
+      - Уникальность тройки (linkTypeId, sourceItemId, destinationItemId)
+      - Связи используются для трассировки требований и дефектов
+
+  # =====================================================
+  # 7. ДОКУМЕНТЫ И КОММЕНТАРИИ (Documents and Comments)
+  # =====================================================
+
+  - name: Document
+    description: Документ (файл)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: caption
+        type: string
+        description: Название документа
+      - name: description
+        type: string
+        description: Описание документа
+      - name: path
+        type: string
+        description: Путь к файлу на диске
+      - name: filename
+        type: string
+        description: Исходное имя файла
+      - name: size
+        type: int
+        description: Размер файла в байтах
+      - name: mimeType
+        type: string
+        description: MIME-тип файла
+      - name: uploadedAt
+        type: datetime
+        description: Время загрузки
+      - name: uploadedByUserId
+        type: int
+        description: Идентификатор пользователя, загрузившего файл
+      - name: searchCaption
+        type: string
+        description: Нормализованное название для поиска
+      - name: searchDescription
+        type: string
+        description: Нормализованное описание для поиска
+
+  - name: ItemDocument
+    description: Связь элемента с документом
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: itemId
+        type: int
+        description: Идентификатор элемента
+      - name: documentId
+        type: int
+        description: Идентификатор документа
+    business_rules:
+      - Уникальность пары (itemId, documentId)
+
+  - name: Comment
+    description: Комментарий к элементу
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: userId
+        type: int
+        description: Идентификатор автора
+      - name: itemId
+        type: int
+        description: Идентификатор элемента
+      - name: createdAt
+        type: datetime
+        description: Время создания
+      - name: content
+        type: string
+        description: Текст комментария
+      - name: searchContent
+        type: string
+        description: Нормализованный текст для поиска
+
+  - name: CommentDocument
+    description: Связь комментария с документом
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: commentId
+        type: int
+        description: Идентификатор комментария
+      - name: documentId
+        type: int
+        description: Идентификатор документа
+    business_rules:
+      - Уникальность пары (commentId, documentId)
+
+  # =====================================================
+  # 8. ДОСКИ (Kanban Boards)
+  # =====================================================
+
+  - name: Board
+    description: Канбан-доска
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: workflowId
+        type: int
+        description: Идентификатор рабочего процесса
+      - name: projectId
+        type: int
+        description: Идентификатор проекта
+      - name: phaseId
+        type: int
+        description: Идентификатор фазы (опционально)
+      - name: caption
+        type: string
+        description: Название доски
+      - name: description
+        type: string
+        description: Описание доски
+    business_rules:
+      - Доска может быть создана для всего проекта или для конкретной фазы
+      - Колонки доски соответствуют состояниям рабочего процесса
+
+  - name: BoardColumn
+    description: Колонка канбан-доски
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: boardId
+        type: int
+        description: Идентификатор доски
+      - name: stateId
+        type: int
+        description: Идентификатор состояния
+      - name: orderNumber
+        type: int
+        description: Порядковый номер колонки на доске
+      - name: settings
+        type: string
+        description: JSON с настройками (WIP limit, цвет и т.д.)
+    business_rules:
+      - Каждое состояние может быть только в одной колонке на доске
+      - Уникальность пары (boardId, stateId)
+
+  # =====================================================
+  # 9. КАЛЕНДАРЬ И РАБОЧЕЕ ВРЕМЯ (Calendar and Working Time)
+  # =====================================================
+
+  - name: StandardDay
+    description: Стандартный рабочий день (для нормальной рабочей недели)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: weekDayNumber
+        type: int
+        description: Номер дня недели (0-6, где 0 - воскресенье или понедельник)
+      - name: weekOrder
+        type: int
+        description: Порядковый номер недели (для сменного графика)
+      - name: isWorkDay
+        type: bool
+        description: Является ли день рабочим
+      - name: beginWorkTime
+        type: string
+        description: Время начала работы (HH:MM)
+      - name: endWorkTime
+        type: string
+        description: Время окончания работы (HH:MM)
+      - name: breakDuration
+        type: int
+        description: Длительность перерыва в минутах
+    business_rules:
+      - Всего 7 записей (по одной на каждый день недели)
+      - Используется как база для расчета рабочего времени
+
+  - name: SpecialDay
+    description: Особый день (праздник, перенесенный выходной)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: date
+        type: datetime
+        description: Дата (уникальная)
+      - name: isWorkDay
+        type: bool
+        description: Является ли день рабочим
+      - name: beginWorkTime
+        type: string
+        description: Время начала работы (если рабочий)
+      - name: endWorkTime
+        type: string
+        description: Время окончания работы (если рабочий)
+      - name: breakDuration
+        type: int
+        description: Длительность перерыва в минутах
+
+  - name: UserDay
+    description: Пользовательский день (отпуск, больничный, доп.рабочий)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: userId
+        type: int
+        description: Идентификатор пользователя
+      - name: date
+        type: datetime
+        description: Дата (уникальна в паре с userId)
+      - name: isWorkDay
+        type: bool
+        description: Является ли день рабочим для пользователя
+      - name: beginWorkTime
+        type: string
+        description: Время начала работы (если рабочий)
+      - name: endWorkTime
+        type: string
+        description: Время окончания работы (если рабочий)
+      - name: breakDuration
+        type: int
+        description: Длительность перерыва в минутах
+      - name: description
+        type: string
+        description: Причина (отпуск, больничный и т.д.)
+
+  # =====================================================
+  # 10. СООБЩЕНИЯ И УВЕДОМЛЕНИЯ (Messages and Notifications)
+  # =====================================================
+
+  - name: PrivateMessage
+    description: Личное сообщение между пользователями
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: senderUserId
+        type: int
+        description: Идентификатор отправителя
+      - name: receiverUserId
+        type: int
+        description: Идентификатор получателя
+      - name: creationTimestamp
+        type: datetime
+        description: Время отправки
+      - name: content
+        type: string
+        description: Текст сообщения
+      - name: isViewed
+        type: bool
+        description: Флаг прочтения
+
+  - name: TeamMessage
+    description: Сообщение в команду (чат команды)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: senderUserId
+        type: int
+        description: Идентификатор отправителя
+      - name: teamId
+        type: int
+        description: Идентификатор команды
+      - name: creationTimestamp
+        type: datetime
+        description: Время отправки
+      - name: content
+        type: string
+        description: Текст сообщения
+
+  - name: UserNotification
+    description: Подписка пользователя на изменения элемента
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: userId
+        type: int
+        description: Идентификатор пользователя
+      - name: itemId
+        type: int
+        description: Идентификатор элемента
+    business_rules:
+      - Пользователь получает уведомления об изменениях подписанного элемента
+      - Уникальность пары (userId, itemId)
+
+  # =====================================================
+  # 11. ДЕЙСТВИЯ И ЗАДАЧИ (Actions and Tasks)
+  # =====================================================
+
+  - name: UserAction
+    description: Аудит действий пользователя
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: userId
+        type: int
+        description: Идентификатор пользователя
+      - name: timestamp
+        type: datetime
+        description: Время действия
+      - name: caption
+        type: string
+        description: Краткое описание действия
+      - name: description
+        type: string
+        description: Подробное описание (контекст)
+
+  - name: UserTodo
+    description: Личная задача пользователя (ToDo)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: userId
+        type: int
+        description: Идентификатор пользователя
+      - name: isDone
+        type: bool
+        description: Флаг выполнения
+      - name: caption
+        type: string
+        description: Текст задачи
+      - name: searchCaption
+        type: string
+        description: Нормализованный текст для поиска
+    business_rules:
+      - Может формироваться автоматически (напоминания, дедлайны)
+      - Пользователь может добавлять произвольные задачи
+
+  - name: ItemPlanning
+    description: Планирование элемента на пользователя
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: itemId
+        type: int
+        description: Идентификатор элемента
+      - name: userId
+        type: int
+        description: Идентификатор пользователя
+      - name: startDate
+        type: datetime
+        description: Плановая дата начала
+      - name: endDate
+        type: datetime
+        description: Плановая дата окончания
+    business_rules:
+      - Уникальность пары (itemId, userId) - элемент может быть назначен пользователю только один раз
+      - Используется для расчета загрузки и формирования календаря
+
+  # =====================================================
+  # 12. СПРАВОЧНИКИ (Directories)
+  # =====================================================
+
+  - name: RoleMenuItem
+    description: Пункты меню для роли (динамическое меню)
+    attributes:
+      - name: id
+        type: int
+        description: Уникальный идентификатор
+      - name: roleId
+        type: int
+        description: Идентификатор роли
+      - name: caption
+        type: string
+        description: Название пункта меню
+      - name: link
+        type: string
+        description: Ссылка (URL)
+      - name: icon
+        type: string
+        description: Значок пункта меню
+    business_rules:
+      - Определяет, какие пункты меню видны пользователям с данной ролью
+      - Позволяет динамически настраивать интерфейс
