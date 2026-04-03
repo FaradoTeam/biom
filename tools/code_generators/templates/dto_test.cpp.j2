@@ -9,21 +9,25 @@
 using namespace farado::dto;
 
 // Helper for time_point comparison in tests
-inline bool operator==(const std::chrono::system_clock::time_point& lhs, 
-                       const std::chrono::system_clock::time_point& rhs) {
+inline bool operator==(
+    const std::chrono::system_clock::time_point& lhs,
+    const std::chrono::system_clock::time_point& rhs)
+{
     return lhs.time_since_epoch().count() == rhs.time_since_epoch().count();
 }
 
 BOOST_AUTO_TEST_SUITE({{ dto.name }}Tests)
 
 // Test: Default constructor
-BOOST_AUTO_TEST_CASE(DefaultConstructor) {
+BOOST_AUTO_TEST_CASE(DefaultConstructor)
+{
     {{ dto.name }} dto;
     BOOST_CHECK(true);
 }
 
 // Test: Getters and Setters
-BOOST_AUTO_TEST_CASE(GettersAndSetters) {
+BOOST_AUTO_TEST_CASE(GettersAndSetters)
+{
     {{ dto.name }} dto;
 
     {% for field in dto.fields %}
@@ -59,7 +63,8 @@ BOOST_AUTO_TEST_CASE(GettersAndSetters) {
 }
 
 // Test: toJson serialization
-BOOST_AUTO_TEST_CASE(ToJsonSerialization) {
+BOOST_AUTO_TEST_CASE(ToJsonSerialization)
+{
     {{ dto.name }} dto;
 
     {% for field in dto.fields %}
@@ -106,7 +111,8 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization) {
 }
 
 // Test: fromJson deserialization
-BOOST_AUTO_TEST_CASE(FromJsonDeserialization) {
+BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
+{
     nlohmann::json json = nlohmann::json::object();
     {% for field in dto.fields %}
     {% if field.cpp_type == 'std::string' %}
@@ -145,7 +151,8 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization) {
 }
 
 // Test: Round trip serialization
-BOOST_AUTO_TEST_CASE(RoundTripSerialization) {
+BOOST_AUTO_TEST_CASE(RoundTripSerialization)
+{
     {{ dto.name }} original;
 
     {% for field in dto.fields %}
@@ -171,16 +178,21 @@ BOOST_AUTO_TEST_CASE(RoundTripSerialization) {
     // Compare original and deserialized
     {% for field in dto.fields %}
     {% if field.cpp_type == 'std::chrono::system_clock::time_point' %}
-    BOOST_CHECK_EQUAL(original.{{ field.name_camel }}().time_since_epoch().count(),
-                      deserialized.{{ field.name_camel }}().time_since_epoch().count());
+    BOOST_CHECK_EQUAL(
+        original.{{ field.name_camel }}().time_since_epoch().count(),
+        deserialized.{{ field.name_camel }}().time_since_epoch().count()
+    );
     {% else %}
-    BOOST_TEST(original.{{ field.name_camel }}() == deserialized.{{ field.name_camel }}());
+    BOOST_TEST(
+        original.{{ field.name_camel }}() == deserialized.{{ field.name_camel }}()
+    );
     {% endif %}
     {% endfor %}
 }
 
 // Test: isValid validation
-BOOST_AUTO_TEST_CASE(Validation) {
+BOOST_AUTO_TEST_CASE(Validation)
+{
     {{ dto.name }} dto;
 
     {% set required_fields = [] %}
@@ -230,15 +242,18 @@ BOOST_AUTO_TEST_CASE(Validation) {
 }
 
 // Test: Comparison operators
-BOOST_AUTO_TEST_CASE(ComparisonOperators) {
+BOOST_AUTO_TEST_CASE(ComparisonOperators)
+{
     {{ dto.name }} dto1;
     {{ dto.name }} dto2;
 
     // Initially they should be equal (both default constructed)
     {% for field in dto.fields %}
     {% if field.cpp_type == 'std::chrono::system_clock::time_point' %}
-    BOOST_CHECK_EQUAL(dto1.{{ field.name_camel }}().time_since_epoch().count(),
-                      dto2.{{ field.name_camel }}().time_since_epoch().count());
+    BOOST_CHECK_EQUAL(
+        dto1.{{ field.name_camel }}().time_since_epoch().count(),
+        dto2.{{ field.name_camel }}().time_since_epoch().count()
+    );
     {% else %}
     BOOST_TEST(dto1.{{ field.name_camel }}() == dto2.{{ field.name_camel }}());
     {% endif %}
@@ -280,7 +295,8 @@ BOOST_AUTO_TEST_CASE(ComparisonOperators) {
 }
 
 // Test: Stream output operator
-BOOST_AUTO_TEST_CASE(StreamOutput) {
+BOOST_AUTO_TEST_CASE(StreamOutput)
+{
     {{ dto.name }} dto;
 
     {% for field in dto.fields|selectattr('required', 'equalto', true)|list %}

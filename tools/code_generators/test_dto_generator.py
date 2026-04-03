@@ -192,20 +192,17 @@ class DTOTestGenerator:
         includes.add('#include <iomanip>')
 
         # Include the DTO header
-        includes.add(f'#include "../../common/dto/{dto["name_snake"]}.h"')
-
-        # Include print helpers
-        includes.add(f'#include "../../common/dto/dto_print_helpers.h"')
+        includes.add(f'#include "common/dto/{dto["name_snake"]}.h"')
 
         # Include dependencies
         for field in dto['fields']:
             cpp_type = field['cpp_type']
             if cpp_type in self.dto_names:
-                includes.add(f'#include "../../common/dto/{self.to_snake_case(cpp_type)}.h"')
+                includes.add(f'#include "common/dto/{self.to_snake_case(cpp_type)}.h"')
             elif cpp_type.startswith('std::vector<'):
                 inner_type = cpp_type[12:-1]
                 if inner_type in self.dto_names:
-                    includes.add(f'#include "../../common/dto/{self.to_snake_case(inner_type)}.h"')
+                    includes.add(f'#include "common/dto/{self.to_snake_case(inner_type)}.h"')
 
         return sorted(list(includes))
 

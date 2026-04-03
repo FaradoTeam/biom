@@ -5,8 +5,6 @@
 #include <nlohmann/json.hpp>
 
 #include "{{ dto.name_snake }}.h"
-#include "../common/dto_common.h"
-
 
 namespace farado
 {
@@ -183,13 +181,11 @@ std::string {{ dto.name }}::validationError() const
 bool {{ dto.name }}::operator==(const {{ dto.name }}& other) const
 {
     return
-    {% for field in dto.fields %}
-    {% if not field.const_value %}
-        m_{{ field.name_camel }} == other.m_{{ field.name_camel }}{% if not loop.last %}
-        &&{% endif %}
-    {% endif %}
-    {% endfor %}
-    ;
+    {% for field in dto.fields -%}
+    {%- if not field.const_value %}
+        {% if not loop.first %}&&{% endif %} m_{{ field.name_camel }} == other.m_{{ field.name_camel }}
+    {% endif -%}
+    {%- endfor %};
 }
 
 } // namespace dto
