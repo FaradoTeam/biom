@@ -1,22 +1,41 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-DTO Test Generator for C++ from OpenAPI specification
-Generates unit tests for DTO classes using Boost.Test
+Генератор юнит-тестов для DTO классов на C++ из OpenAPI спецификации.
+Создаёт тесты с использованием Boost.Test.
 """
 
 import argparse
 import yaml
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from jinja2 import Environment, FileSystemLoader, Template
 import re
 
 
 class DTOTestGenerator:
-    """Generates C++ unit tests for DTO classes using Boost.Test"""
+    """
+    Генерирует C++ юнит-тесты для DTO классов с использованием Boost.Test.
+
+    Атрибуты:
+        openapi_file: Путь к файлу OpenAPI спецификации
+        output_dir: Директория для сохранения тестов
+        templates_dir: Директория с шаблонами Jinja2
+        spec: Загруженная OpenAPI спецификация
+        dto_names: Список имён DTO
+    """
 
     def __init__(self, openapi_file: Path, output_dir: Path, templates_dir: Path):
+        """
+        Инициализирует генератор тестов DTO.
+
+        Аргументы:
+            openapi_file: Путь к OpenAPI YAML файлу
+            output_dir: Директория для вывода тестов
+            templates_dir: Директория с Jinja2 шаблонами
+        """
         self.openapi_file = openapi_file
         self.output_dir = output_dir
         self.templates_dir = templates_dir
@@ -24,12 +43,21 @@ class DTOTestGenerator:
         self.dto_names = []
 
     def load_spec(self) -> None:
-        """Load OpenAPI specification from YAML file"""
+        """Загружает OpenAPI спецификацию из YAML файла."""
         with open(self.openapi_file, 'r', encoding='utf-8') as f:
             self.spec = yaml.safe_load(f)
 
     def get_cpp_type(self, schema: Dict[str, Any], name: str = "") -> str:
-        """Convert OpenAPI type to C++ type"""
+        """
+        Преобразует OpenAPI тип в C++ тип для тестов.
+
+        Аргументы:
+            schema: Схема поля
+            name: Имя поля
+
+        Возвращает:
+            Строку с C++ типом
+        """
         if '$ref' in schema:
             ref = schema['$ref']
             type_name = ref.split('/')[-1]
@@ -67,16 +95,22 @@ class DTOTestGenerator:
         return 'std::string'
 
     def get_test_value(self, cpp_type: str, field_name: str = "") -> str:
-        """Generate test value for a given C++ type"""
-        # Handle DTO types
+        """
+        Генерирует тестовое значение для заданного C++ типа.
+
+        Аргументы:
+            cpp_type: C++ тип поля
+            field_name: Имя поля
+
+        Возвращает:
+            Строковое представление тестового значения
+        """
         if cpp_type in self.dto_names:
             return f"{cpp_type}()"
 
-        # Handle vectors
         if cpp_type.startswith('std::vector<'):
             return "{}"
 
-        # Handle basic types
         if cpp_type == 'bool':
             return 'true'
         if cpp_type in ['int64_t', 'int32_t']:
@@ -91,13 +125,20 @@ class DTOTestGenerator:
         return '{}'
 
     def get_json_for_field(self, field: Dict[str, Any]) -> str:
-        """Generate JSON string for a field"""
+        """
+        Генерирует JSON представление для поля в тесте.
+
+        Аргументы:
+            field: Словарь с информацией о поле
+
+        Возвращает:
+            Строку с JSON фрагментом или комментарием
+        """
         field_name = field['name_snake']
         cpp_type = field['cpp_type']
 
-        # Skip const fields (they have default values)
         if field.get('const_value'):
-            return f'    // "{field_name}" is constant, skipping in test JSON'
+            return f'    // "{field_name}" — константа, пропускаем в тесте'
 
         if cpp_type == 'std::string':
             return f'    {{"{field_name}", "test_{field_name}"}}'
@@ -108,7 +149,7 @@ class DTOTestGenerator:
         elif cpp_type in ['double', 'float']:
             return f'    {{"{field_name}", 3.14}}'
         elif cpp_type == 'std::chrono::system_clock::time_point':
-            return f'    {{"{field_name}", 1640995200}}'  # 2022-01-01 00:00:00
+            return f'    {{"{field_name}", 1640995200}}'
         elif cpp_type.startswith('std::vector<'):
             return f'    {{"{field_name}", nlohmann::json::array({{"item1", "item2"}})}}'
         elif cpp_type in self.dto_names:
@@ -117,13 +158,26 @@ class DTOTestGenerator:
             return f'    {{"{field_name}", "test_value"}}'
 
     def to_snake_case(self, name: str) -> str:
-        """Convert camelCase to snake_case"""
+        """
+        Преобразует camelCase в snake_case.
+
+        Аргументы:
+            name: Имя в camelCase
+
+        Возвращает:
+            Имя в snake_case
+        """
         s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
         s2 = re.sub('([a-z0-9])([A-Z]+)', r'\1_\2', s1)
         return s2.lower()
 
     def collect_dtos(self) -> List[Dict[str, Any]]:
-        """Collect all DTOs from OpenAPI schemas"""
+        """
+        Собирает все DTO из схем OpenAPI.
+
+        Возвращает:
+            Список словарей с информацией о DTO
+        """
         schemas = self.spec.get('components', {}).get('schemas', {})
         dtos = []
 
@@ -136,25 +190,31 @@ class DTOTestGenerator:
         return dtos
 
     def process_dto(self, name: str, schema: Dict[str, Any]) -> Dict[str, Any]:
-        """Process a single DTO schema"""
+        """
+        Обрабатывает одну схему DTO для тестирования.
+
+        Аргументы:
+            name: Имя DTO
+            schema: Схема DTO из OpenAPI
+
+        Возвращает:
+            Словарь с информацией о DTO
+        """
         properties = schema.get('properties', {})
         required = schema.get('required', [])
 
         fields = []
         for prop_name, prop_schema in properties.items():
-            # Skip writeOnly fields
             if prop_schema.get('writeOnly'):
                 continue
 
             cpp_type = self.get_cpp_type(prop_schema, prop_name)
 
-            # For arrays, get item type
             array_item_type = ""
             if prop_schema.get('type') == 'array':
                 items = prop_schema.get('items', {})
                 array_item_type = self.get_cpp_type(items)
 
-            # Check if this is a constant value
             const_value = None
             if prop_name == 'tokenType' and prop_schema.get('default') == 'Bearer':
                 const_value = 'Bearer'
@@ -180,22 +240,28 @@ class DTOTestGenerator:
         }
 
     def collect_includes(self, dto: Dict[str, Any]) -> List[str]:
-        """Collect includes for test file"""
-        includes = list()
-        includes.append('#include <chrono>')
-        includes.append('#include <ctime>')
-        includes.append('#include <iomanip>')
-        includes.append('#include <sstream>')
-        includes.append('')
-        includes.append('#include <boost/test/unit_test.hpp>')
-        includes.append('#include <nlohmann/json.hpp>')
-        includes.append('')
+        """
+        Собирает список include-директив для тестового файла.
 
-        # Include the DTO header
-        includes.append(f'#include "common/dto/{dto["name_snake"]}.h"')
-        includes.append('')
+        Аргументы:
+            dto: Словарь с информацией о DTO
 
-        # Include dependencies
+        Возвращает:
+            Список строк с include-директивами
+        """
+        includes = [
+            '#include <chrono>',
+            '#include <ctime>',
+            '#include <iomanip>',
+            '#include <sstream>',
+            '',
+            '#include <boost/test/unit_test.hpp>',
+            '#include <nlohmann/json.hpp>',
+            '',
+            f'#include "common/dto/{dto["name_snake"]}.h"',
+            '',
+        ]
+
         for field in dto['fields']:
             cpp_type = field['cpp_type']
             if cpp_type in self.dto_names:
@@ -208,10 +274,18 @@ class DTOTestGenerator:
         return includes
 
     def generate_test_file(self, dto: Dict[str, Any], template: Template) -> str:
-        """Generate test file for a DTO"""
+        """
+        Генерирует тестовый файл для DTO.
+
+        Аргументы:
+            dto: Словарь с информацией о DTO
+            template: Шаблон Jinja2
+
+        Возвращает:
+            Сгенерированный код тестового файла
+        """
         includes = self.collect_includes(dto)
 
-        # Generate JSON for serialization test
         json_parts = []
         for field in dto['fields']:
             json_part = self.get_json_for_field(field)
@@ -220,7 +294,6 @@ class DTOTestGenerator:
 
         json_object = ",\n".join(json_parts)
 
-        # Generate field validation checks
         field_checks = []
         for field in dto['fields']:
             if field['required'] and not field.get('const_value'):
@@ -242,95 +315,101 @@ class DTOTestGenerator:
         )
 
     def write_file(self, filepath: Path, content: str) -> None:
-        """Write content to file"""
+        """
+        Записывает содержимое в файл.
+
+        Аргументы:
+            filepath: Путь к файлу
+            content: Содержимое для записи
+        """
         filepath.parent.mkdir(parents=True, exist_ok=True)
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(content)
-        print(f"Generated: {filepath}")
+        print(f"Сгенерирован: {filepath}")
 
     def run(self) -> None:
-        """Run the generator"""
-        print("Loading OpenAPI specification...")
+        """Запускает процесс генерации тестов DTO."""
+        print("Загрузка OpenAPI спецификации...")
         self.load_spec()
 
-        print("Collecting DTOs...")
+        print("Сбор DTO...")
         dtos = self.collect_dtos()
-        print(f"Found {len(dtos)} DTOs")
+        print(f"Найдено {len(dtos)} DTO")
 
-        # Load templates with custom filters
         env = Environment(
             loader=FileSystemLoader(str(self.templates_dir)),
             trim_blocks=True,
             lstrip_blocks=True,
         )
 
-        # Add custom filter for length
         env.filters['length'] = lambda x: len(x)
 
         test_template = env.get_template('dto_test.cpp.j2')
 
-        # Generate tests for each DTO
         for dto in dtos:
             test_content = self.generate_test_file(dto, test_template)
             test_file = self.output_dir / f'test_{dto["name_snake"]}.cpp'
             self.write_file(test_file, test_content)
 
-        # Generate test suite runner
         self.generate_test_runner(dtos)
 
-        print("\n✅ DTO test generation completed!")
+        print("\nГенерация тестов DTO завершена!")
 
     def generate_test_runner(self, dtos: List[Dict[str, Any]]) -> None:
-        """Generate main test runner file"""
-        runner_content = f"""// Auto-generated main test file for DTO tests
-// Generated: {datetime.now().isoformat()}
-// DO NOT EDIT MANUALLY
+        """
+        Генерирует главный файл запуска тестов.
+
+        Аргументы:
+            dtos: Список DTO
+        """
+        runner_content = f"""// Автоматически сгенерированный главный файл тестов DTO
+// Сгенерирован: {datetime.now().isoformat()}
+// НЕ РЕДАКТИРОВАТЬ ВРУЧНУЮ
 
 #define BOOST_TEST_MODULE FaradoDtoTests
 #include <boost/test/unit_test.hpp>
 
-// The test cases are in separate files
-// This file just defines the test module
+// Тестовые случаи находятся в отдельных файлах
+// Этот файл только определяет модуль тестов
 """
         runner_file = self.output_dir / 'test_main.cpp'
         self.write_file(runner_file, runner_content)
 
 
 def main():
+    """Точка входа в скрипт генератора тестов DTO."""
     parser = argparse.ArgumentParser(
-        description='Generate C++ unit tests for DTO classes using Boost.Test'
+        description='Генерирует C++ юнит-тесты для DTO классов с использованием Boost.Test'
     )
     parser.add_argument(
         '--openapi',
         required=True,
         type=Path,
-        help='Path to OpenAPI specification file (YAML)'
+        help='Путь к OpenAPI YAML файлу'
     )
     parser.add_argument(
         '--output',
         required=True,
         type=Path,
-        help='Output directory for generated test files'
+        help='Директория для вывода тестов'
     )
     parser.add_argument(
         '--templates',
         required=True,
         type=Path,
-        help='Directory containing Jinja2 templates'
+        help='Директория с Jinja2 шаблонами'
     )
 
     args = parser.parse_args()
 
-    # Validate inputs
     if not args.openapi.exists():
-        print(f"Error: OpenAPI file not found: {args.openapi}")
+        print(f"Ошибка: OpenAPI файл не найден: {args.openapi}")
         return 1
 
     if not args.templates.exists():
-        print(f"Error: Templates directory not found: {args.templates}")
+        print(f"Ошибка: Директория с шаблонами не найдена: {args.templates}")
         return 1
 
-    # Run generator
     generator = DTOTestGenerator(args.openapi, args.output, args.templates)
     generator.run()
 

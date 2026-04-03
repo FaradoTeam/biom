@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-DTO Generator for C++ from OpenAPI specification
-Generates DTO classes with serialization/deserialization to/from JSON
+Генератор DTO-классов на C++ из OpenAPI спецификации.
+Создаёт классы с поддержкой сериализации/десериализации в JSON.
 """
 
 import argparse
@@ -14,9 +16,18 @@ import re
 
 
 class DTOGenerator:
-    """Generates C++ DTO classes from OpenAPI specification"""
+    """
+    Генерирует C++ DTO классы из OpenAPI спецификации.
 
-    # C++ type mappings
+    Атрибуты:
+        openapi_file: Путь к файлу OpenAPI спецификации
+        output_dir: Директория для сохранения сгенерированных файлов
+        templates_dir: Директория с шаблонами Jinja2
+        spec: Загруженная OpenAPI спецификация
+        dto_names: Список имён сгенерированных DTO
+    """
+
+    # Соответствие OpenAPI типов C++ типам
     TYPE_MAPPINGS = {
         'integer': 'int64_t',
         'string': 'std::string',
@@ -26,7 +37,7 @@ class DTOGenerator:
         'object': 'nlohmann::json',
     }
 
-    # OpenAPI format to C++ type mappings
+    # Соответствие форматов OpenAPI C++ типам
     FORMAT_MAPPINGS = {
         'int32': 'int32_t',
         'int64': 'int64_t',
@@ -38,6 +49,14 @@ class DTOGenerator:
     }
 
     def __init__(self, openapi_file: Path, output_dir: Path, templates_dir: Path):
+        """
+        Инициализирует генератор DTO.
+
+        Аргументы:
+            openapi_file: Путь к OpenAPI YAML файлу
+            output_dir: Директория для вывода сгенерированных файлов
+            templates_dir: Директория с Jinja2 шаблонами
+        """
         self.openapi_file = openapi_file
         self.output_dir = output_dir
         self.templates_dir = templates_dir
@@ -45,14 +64,23 @@ class DTOGenerator:
         self.dto_names = []
 
     def load_spec(self) -> None:
-        """Load OpenAPI specification from YAML file"""
+        """Загружает OpenAPI спецификацию из YAML файла."""
         with open(self.openapi_file, 'r', encoding='utf-8') as f:
             self.spec = yaml.safe_load(f)
 
     def get_cpp_type(self, schema: Dict[str, Any], name: str = "") -> str:
-        """Convert OpenAPI type to C++ type"""
+        """
+        Преобразует OpenAPI тип в соответствующий C++ тип.
+
+        Аргументы:
+            schema: Схема OpenAPI поля
+            name: Имя поля (используется для отладки)
+
+        Возвращает:
+            Строку с C++ типом
+        """
         if '$ref' in schema:
-            # Extract type name from reference
+            # Извлекаем имя типа из ссылки
             ref = schema['$ref']
             type_name = ref.split('/')[-1]
             return type_name
@@ -60,45 +88,69 @@ class DTOGenerator:
         schema_type = schema.get('type', 'string')
         schema_format = schema.get('format', '')
 
-        # Check format first
+        # Проверяем формат в первую очередь
         if schema_format in self.FORMAT_MAPPINGS:
             return self.FORMAT_MAPPINGS[schema_format]
 
-        # Handle arrays
+        # Обрабатываем массивы
         if schema_type == 'array':
             items = schema.get('items', {})
             item_type = self.get_cpp_type(items)
             return f"std::vector<{item_type}>"
 
-        # Handle objects
+        # Обрабатываем объекты
         if schema_type == 'object':
             if 'properties' in schema:
-                # This is a nested object - we'll treat it as a DTO
-                # For now, return nlohmann::json as fallback
+                # Вложенный объект — обрабатываем как JSON
                 return 'nlohmann::json'
             return 'nlohmann::json'
 
-        # Handle enums
+        # Обрабатываем перечисления
         if 'enum' in schema:
             return 'std::string'
 
-        # Basic types
+        # Базовые типы
         return self.TYPE_MAPPINGS.get(schema_type, 'std::string')
 
     def get_array_item_type(self, schema: Dict[str, Any]) -> str:
-        """Get the item type for an array"""
+        """
+        Возвращает тип элемента для массива.
+
+        Аргументы:
+            schema: Схема массива
+
+        Возвращает:
+            C++ тип элемента массива
+        """
         items = schema.get('items', {})
         return self.get_cpp_type(items)
 
     def is_required(self, schema_name: str, property_name: str) -> bool:
-        """Check if a property is required"""
+        """
+        Проверяет, является ли свойство обязательным.
+
+        Аргументы:
+            schema_name: Имя схемы
+            property_name: Имя свойства
+
+        Возвращает:
+            True если свойство обязательно, иначе False
+        """
         schemas = self.spec.get('components', {}).get('schemas', {})
         schema = schemas.get(schema_name, {})
         required = schema.get('required', [])
         return property_name in required
 
     def get_default_value(self, schema: Dict[str, Any]) -> Optional[str]:
-        """Get default value for a property"""
+        """
+        Возвращает значение по умолчанию для свойства.
+
+        Аргументы:
+            schema: Схема поля
+
+        Возвращает:
+            Строковое представление значения по умолчанию или None
+        """
         if 'default' in schema:
             default = schema['default']
             if isinstance(default, str):
@@ -109,34 +161,67 @@ class DTOGenerator:
         return None
 
     def get_enum_values(self, schema: Dict[str, Any]) -> List[str]:
-        """Get enum values if present"""
+        """
+        Возвращает список значений перечисления.
+
+        Аргументы:
+            schema: Схема поля
+
+        Возвращает:
+            Список строковых значений enum
+        """
         if 'enum' in schema:
             return [str(v) for v in schema['enum']]
         return []
 
     def to_snake_case(self, name: str) -> str:
-        """Convert camelCase to snake_case"""
-        # Insert underscore before capital letters
+        """
+        Преобразует camelCase в snake_case.
+
+        Аргументы:
+            name: Имя в camelCase
+
+        Возвращает:
+            Имя в snake_case
+        """
         s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-        # Handle consecutive capitals (e.g., ID -> _id)
         s2 = re.sub('([a-z0-9])([A-Z]+)', r'\1_\2', s1)
         return s2.lower()
 
     def to_camel_case(self, name: str) -> str:
-        """Convert snake_case to lowerCamelCase (keeps original case)"""
-        # This method should preserve the original field name from OpenAPI
-        # since OpenAPI typically uses camelCase already
+        """
+        Преобразует snake_case в lowerCamelCase.
+        Сохраняет оригинальное имя из OpenAPI.
+
+        Аргументы:
+            name: Имя в любом формате
+
+        Возвращает:
+            Имя в lowerCamelCase
+        """
         return name
 
     def to_pascal_case(self, name: str) -> str:
-        """Convert to PascalCase for setter methods"""
-        # If it's already camelCase, just capitalize first letter
+        """
+        Преобразует имя в PascalCase для методов-сеттеров.
+
+        Аргументы:
+            name: Исходное имя
+
+        Возвращает:
+            Имя с заглавной первой буквой
+        """
         if name and not name[0].isupper():
             return name[0].upper() + name[1:]
         return name
 
     def collect_dtos(self) -> List[Dict[str, Any]]:
-        """Collect all DTOs from OpenAPI schemas"""
+        """
+        Собирает все DTO из схем OpenAPI.
+
+        Возвращает:
+            Список словарей с информацией о каждом DTO
+        """
         schemas = self.spec.get('components', {}).get('schemas', {})
         dtos = []
 
@@ -149,43 +234,41 @@ class DTOGenerator:
         return dtos
 
     def process_dto(self, name: str, schema: Dict[str, Any]) -> Dict[str, Any]:
-        """Process a single DTO schema"""
+        """
+        Обрабатывает одну схему DTO.
+
+        Аргументы:
+            name: Имя DTO
+            schema: Схема DTO из OpenAPI
+
+        Возвращает:
+            Словарь с информацией о DTO
+        """
         properties = schema.get('properties', {})
         required = schema.get('required', [])
 
         fields = []
         for prop_name, prop_schema in properties.items():
-            # Skip writeOnly fields (like password)
+            # Пропускаем поля только для записи (например, пароль)
             if prop_schema.get('writeOnly'):
                 continue
 
-            # Determine if field is required
             is_required = prop_name in required
-
-            # Get C++ type
             cpp_type = self.get_cpp_type(prop_schema, prop_name)
 
-            # For arrays, get item type
             array_item_type = ""
             if prop_schema.get('type') == 'array':
                 array_item_type = self.get_array_item_type(prop_schema)
 
-            # Get default value
             default = self.get_default_value(prop_schema)
-
-            # Get enum values
             enum_values = self.get_enum_values(prop_schema)
 
-            # Check if this is a constant value (for API version etc.)
             const_value = None
             if prop_name == 'tokenType' and prop_schema.get('default') == 'Bearer':
                 const_value = 'Bearer'
 
-            # Convert name to different cases
             name_snake = self.to_snake_case(prop_name)
-            # For camelCase and PascalCase, we keep the original name from OpenAPI
-            # because it's already in the correct format (e.g., "projectId")
-            name_camel = prop_name  # Keep original camelCase
+            name_camel = prop_name
             name_pascal = prop_name[0].upper() + prop_name[1:] if prop_name else prop_name
 
             field = {
@@ -211,46 +294,58 @@ class DTOGenerator:
         }
 
     def collect_dependencies(self, dto: Dict[str, Any]) -> List[str]:
-        """Collect dependencies for a DTO"""
+        """
+        Собирает зависимости DTO от других DTO.
+
+        Аргументы:
+            dto: Словарь с информацией о DTO
+
+        Возвращает:
+            Список имён зависимых DTO
+        """
         dependencies = set()
 
         for field in dto['fields']:
             cpp_type = field['cpp_type']
 
-            # Check if this is a reference to another DTO
             if cpp_type in self.dto_names:
                 dependencies.add(cpp_type)
 
-            # Check vector of DTOs
             if cpp_type.startswith('std::vector<'):
-                inner_type = cpp_type[12:-1]  # Remove 'std::vector<' and '>'
+                inner_type = cpp_type[12:-1]
                 if inner_type in self.dto_names:
                     dependencies.add(inner_type)
 
         return list(dependencies)
 
     def collect_includes(self, dto: Dict[str, Any]) -> List[str]:
-        """Collect includes for a DTO"""
-        includes = list()
-        includes.append('#include <chrono>')
-        includes.append('#include <ctime>')
-        includes.append('#include <memory>')
-        includes.append('#include <string>')
-        includes.append('#include <vector>')
-        includes.append('#include <unordered_map>')
-        includes.append('')
-        includes.append('#include <nlohmann/json.hpp>')
-        includes.append('')
+        """
+        Собирает список include-директив для DTO.
 
-        # Add includes for dependencies
+        Аргументы:
+            dto: Словарь с информацией о DTO
+
+        Возвращает:
+            Список строк с include-директивами
+        """
+        includes = [
+            '#include <chrono>',
+            '#include <ctime>',
+            '#include <memory>',
+            '#include <string>',
+            '#include <vector>',
+            '#include <unordered_map>',
+            '',
+            '#include <nlohmann/json.hpp>',
+            '',
+        ]
+
         for field in dto['fields']:
             cpp_type = field['cpp_type']
 
-            # Add include for the DTO itself if it's a dependency
             if cpp_type in self.dto_names:
                 includes.append(f'#include "{self.to_snake_case(cpp_type)}.h"')
 
-            # Add include for vector items
             if cpp_type.startswith('std::vector<'):
                 inner_type = cpp_type[12:-1]
                 if inner_type in self.dto_names:
@@ -259,7 +354,16 @@ class DTOGenerator:
         return includes
 
     def generate_dto_header(self, dto: Dict[str, Any], template: Template) -> str:
-        """Generate header file for a DTO"""
+        """
+        Генерирует заголовочный файл DTO.
+
+        Аргументы:
+            dto: Словарь с информацией о DTO
+            template: Шаблон Jinja2 для заголовка
+
+        Возвращает:
+            Сгенерированный код заголовочного файла
+        """
         includes = self.collect_includes(dto)
         dependencies = self.collect_dependencies(dto)
 
@@ -271,14 +375,31 @@ class DTOGenerator:
         )
 
     def generate_dto_impl(self, dto: Dict[str, Any], template: Template) -> str:
-        """Generate implementation file for a DTO"""
+        """
+        Генерирует файл реализации DTO.
+
+        Аргументы:
+            dto: Словарь с информацией о DTO
+            template: Шаблон Jinja2 для реализации
+
+        Возвращает:
+            Сгенерированный код файла реализации
+        """
         return template.render(
             dto=dto,
             generated_at=datetime.now().isoformat(),
         )
 
     def generate_common_header(self, template: Template) -> str:
-        """Generate common header with forward declarations"""
+        """
+        Генерирует общий заголовочный файл с forward-объявлениями.
+
+        Аргументы:
+            template: Шаблон Jinja2
+
+        Возвращает:
+            Сгенерированный код общего заголовка
+        """
         includes = [
             '#include <memory>',
             '#include <nlohmann/json.hpp>',
@@ -291,22 +412,27 @@ class DTOGenerator:
         )
 
     def write_file(self, filepath: Path, content: str) -> None:
-        """Write content to file"""
+        """
+        Записывает содержимое в файл.
+
+        Аргументы:
+            filepath: Путь к файлу
+            content: Содержимое для записи
+        """
         filepath.parent.mkdir(parents=True, exist_ok=True)
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(content)
-        print(f"Generated: {filepath}")
+        print(f"Сгенерирован: {filepath}")
 
     def run(self) -> None:
-        """Run the generator"""
-        print("Loading OpenAPI specification...")
+        """Запускает процесс генерации DTO."""
+        print("Загрузка OpenAPI спецификации...")
         self.load_spec()
 
-        print("Collecting DTOs...")
+        print("Сбор DTO...")
         dtos = self.collect_dtos()
-        print(f"Found {len(dtos)} DTOs")
+        print(f"Найдено {len(dtos)} DTO")
 
-        # Load templates
         env = Environment(
             loader=FileSystemLoader(str(self.templates_dir)),
             trim_blocks=True,
@@ -317,60 +443,55 @@ class DTOGenerator:
         impl_template = env.get_template('dto.cpp.j2')
         common_template = env.get_template('dto_common.h.j2')
 
-        # Generate common header
         common_header_content = self.generate_common_header(common_template)
         self.write_file(self.output_dir / 'dto_common.h', common_header_content)
 
-        # Generate DTOs
         for dto in dtos:
-            # Generate header
             header_content = self.generate_dto_header(dto, header_template)
             header_file = self.output_dir / f'{self.to_snake_case(dto["name"])}.h'
             self.write_file(header_file, header_content)
 
-            # Generate implementation
             impl_content = self.generate_dto_impl(dto, impl_template)
             impl_file = self.output_dir / f'{self.to_snake_case(dto["name"])}.cpp'
             self.write_file(impl_file, impl_content)
 
-        print("\n✅ DTO generation completed!")
+        print("\nГенерация DTO завершена!")
 
 
 def main():
+    """Точка входа в скрипт генератора DTO."""
     parser = argparse.ArgumentParser(
-        description='Generate C++ DTO classes from OpenAPI specification'
+        description='Генерирует C++ DTO классы из OpenAPI спецификации'
     )
     parser.add_argument(
         '--openapi',
         required=True,
         type=Path,
-        help='Path to OpenAPI specification file (YAML)'
+        help='Путь к OpenAPI YAML файлу'
     )
     parser.add_argument(
         '--output',
         required=True,
         type=Path,
-        help='Output directory for generated files'
+        help='Директория для вывода сгенерированных файлов'
     )
     parser.add_argument(
         '--templates',
         required=True,
         type=Path,
-        help='Directory containing Jinja2 templates'
+        help='Директория с Jinja2 шаблонами'
     )
 
     args = parser.parse_args()
 
-    # Validate inputs
     if not args.openapi.exists():
-        print(f"Error: OpenAPI file not found: {args.openapi}")
+        print(f"Ошибка: OpenAPI файл не найден: {args.openapi}")
         return 1
 
     if not args.templates.exists():
-        print(f"Error: Templates directory not found: {args.templates}")
+        print(f"Ошибка: Директория с шаблонами не найдена: {args.templates}")
         return 1
 
-    # Run generator
     generator = DTOGenerator(args.openapi, args.output, args.templates)
     generator.run()
 
