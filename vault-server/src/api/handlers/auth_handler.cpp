@@ -1,15 +1,13 @@
 #include <iostream>
 #include <regex>
+#include <string>
 
-#include <httplib.h>
-
-#include <nlohmann/json.hpp>
+#include <cpprest/http_msg.h>
+#include <cpprest/json.h>
 
 #include "common/log/log.h"
 
 #include "auth_handler.h"
-
-#include "../middleware/auth_middleware.h"
 
 namespace farado
 {
@@ -27,68 +25,107 @@ AuthHandler::AuthHandler(std::shared_ptr<AuthMiddleware> authMiddleware)
     }
 }
 
-void AuthHandler::handleLogin(const httplib::Request& req, httplib::Response& res)
+void AuthHandler::handleLogin(const web::http::http_request& request)
 {
     try
     {
-        // Парсим тело запроса
-        auto jsonBody = nlohmann::json::parse(req.body);
+        // Извлекаем тело запроса
+        request
+            .extract_json()
+            .then(
+                [this, request](pplx::task<web::json::value> task)
+                {
+                    web::json::value jsonBody;
+                    try
+                    {
+                        jsonBody = task.get();
+                    }
+                    catch (const std::exception& e)
+                    {
+                        web::http::http_response response(
+                            web::http::status_codes::BadRequest
+                        );
+                        sendErrorResponse(
+                            response,
+                            400,
+                            "Invalid JSON: " + std::string(e.what())
+                        );
+                        request.reply(response);
+                        return;
+                    }
 
-        std::string login = jsonBody.value("login", "");
-        std::string password = jsonBody.value("password", "");
+                    const std::string login = jsonBody.has_field("login")
+                        ? jsonBody.at("login").as_string()
+                        : "";
+                    const std::string password = jsonBody.has_field("password")
+                        ? jsonBody.at("password").as_string()
+                        : "";
 
-        // Валидация входных данных
-        if (login.empty() || password.empty())
-        {
-            nlohmann::json error;
-            error["code"] = 400;
-            error["message"] = "Login and password are required";
-            res.status = 400;
-            res.set_content(error.dump(), "application/json");
-            return;
-        }
+                    // Валидация входных данных
+                    if (login.empty() || password.empty())
+                    {
+                        web::http::http_response response(
+                            web::http::status_codes::BadRequest
+                        );
+                        sendErrorResponse(
+                            response,
+                            400,
+                            "Login and password are required"
+                        );
+                        request.reply(response);
+                        return;
+                    }
 
-        // Проверяем учетные данные
-        std::string userId = validateCredentials(login, password);
-        if (userId.empty())
-        {
-            nlohmann::json error;
-            error["code"] = 401;
-            error["message"] = "Invalid credentials";
-            res.status = 401;
-            res.set_content(error.dump(), "application/json");
-            return;
-        }
+                    // Проверяем учетные данные
+                    std::string userId = validateCredentials(login, password);
+                    if (userId.empty())
+                    {
+                        web::http::http_response response(
+                            web::http::status_codes::Unauthorized
+                        );
+                        sendErrorResponse(
+                            response,
+                            401,
+                            "Invalid credentials"
+                        );
+                        request.reply(response);
+                        return;
+                    }
 
-        // Генерируем JWT токен
-        std::string token = m_authMiddleware->generateToken(userId);
+                    // Генерируем JWT токен
+                    const std::string token = m_authMiddleware->generateToken(userId);
 
-        // Формируем ответ
-        nlohmann::json response;
-        response["access_token"] = token;
-        response["token_type"] = "Bearer";
-        response["expires_in"] = 3600;
+                    // Формируем ответ
+                    web::json::value response;
+                    response["access_token"] = web::json::value::string(token);
+                    response["token_type"] = web::json::value::string("Bearer");
+                    response["expires_in"] = web::json::value::number(3600);
 
-        res.set_content(response.dump(), "application/json");
-        LOG_INFO << "User " << userId << " logged in successfully";
+                    request.reply(web::http::status_codes::OK, response);
+                    LOG_INFO << "User " << userId << " logged in successfully";
+                }
+            )
+            .wait();
     }
     catch (const std::exception& e)
     {
-        nlohmann::json error;
-        error["code"] = 400;
-        error["message"] = "Invalid request body: " + std::string(e.what());
-        res.status = 400;
-        res.set_content(error.dump(), "application/json");
+        web::http::http_response response(web::http::status_codes::BadRequest);
+        sendErrorResponse(
+            response,
+            400,
+            "Invalid request body: " + std::string(e.what())
+        );
+        request.reply(response);
     }
 }
 
-void AuthHandler::handleLogout(const httplib::Request& req, httplib::Response& res)
+void AuthHandler::handleLogout(const web::http::http_request& request)
 {
     // Извлекаем токен из заголовка
-    auto authHeader = req.get_header_value("Authorization");
-    if (authHeader.empty())
+    auto authHeader = request.headers().find("Authorization");
+    if (authHeader == request.headers().end())
     {
-        res.status = 401;
+        request.reply(web::http::status_codes::Unauthorized);
         return;
     }
 
@@ -97,66 +134,106 @@ void AuthHandler::handleLogout(const httplib::Request& req, httplib::Response& r
     std::smatch matches;
     std::string token;
 
-    if (std::regex_match(authHeader, matches, bearerRegex) && matches.size() > 1)
+    if (std::regex_match(authHeader->second, matches, bearerRegex) && matches.size() > 1)
     {
         token = matches[1].str();
         m_authMiddleware->invalidateToken(token);
     }
 
-    res.status = 204;
+    request.reply(web::http::status_codes::NoContent);
     LOG_INFO << "User logged out";
 }
 
 void AuthHandler::handleChangePassword(
-    const httplib::Request& req,
-    httplib::Response& res,
+    const web::http::http_request& request,
     const std::string& userId
 )
 {
     try
     {
-        auto jsonBody = nlohmann::json::parse(req.body);
+        request
+            .extract_json()
+            .then(
+                [this, request, userId](pplx::task<web::json::value> task)
+                {
+                    web::json::value jsonBody;
+                    try
+                    {
+                        jsonBody = task.get();
+                    }
+                    catch (const std::exception& e)
+                    {
+                        web::http::http_response response(
+                            web::http::status_codes::BadRequest
+                        );
+                        sendErrorResponse(
+                            response,
+                            400,
+                            "Invalid JSON: " + std::string(e.what())
+                        );
+                        request.reply(response);
+                        return;
+                    }
 
-        std::string oldPassword = jsonBody.value("oldPassword", "");
-        std::string newPassword = jsonBody.value("newPassword", "");
+                    const std::string oldPassword = jsonBody.has_field("oldPassword")
+                        ? jsonBody.at("oldPassword").as_string()
+                        : "";
+                    const std::string newPassword = jsonBody.has_field("newPassword")
+                        ? jsonBody.at("newPassword").as_string()
+                        : "";
 
-        if (oldPassword.empty() || newPassword.empty())
-        {
-            nlohmann::json error;
-            error["code"] = 400;
-            error["message"] = "Old password and new password are required";
-            res.status = 400;
-            res.set_content(error.dump(), "application/json");
-            return;
-        }
+                    if (oldPassword.empty() || newPassword.empty())
+                    {
+                        web::http::http_response response(
+                            web::http::status_codes::BadRequest
+                        );
+                        sendErrorResponse(
+                            response,
+                            400,
+                            "Old password and new password are required"
+                        );
+                        request.reply(response);
+                        return;
+                    }
 
-        if (newPassword.length() < 8)
-        {
-            nlohmann::json error;
-            error["code"] = 400;
-            error["message"] = "New password must be at least 8 characters long";
-            res.status = 400;
-            res.set_content(error.dump(), "application/json");
-            return;
-        }
+                    if (newPassword.length() < 8)
+                    {
+                        web::http::http_response response(
+                            web::http::status_codes::BadRequest
+                        );
+                        sendErrorResponse(
+                            response,
+                            400,
+                            "New password must be at least 8 characters long"
+                        );
+                        request.reply(response);
+                        return;
+                    }
 
-        // Здесь должна быть логика смены пароля в БД
-        // validate old password for userId, then update with new password hash
+                    // TODO: Здесь должна быть логика смены пароля в БД
 
-        res.status = 204;
-        LOG_INFO << "Password changed for user " << userId;
+                    request.reply(web::http::status_codes::NoContent);
+                    LOG_INFO << "Password changed for user " << userId;
+                }
+            )
+            .wait();
     }
     catch (const std::exception& e)
     {
-        nlohmann::json error;
-        error["code"] = 400;
-        error["message"] = "Invalid request body: " + std::string(e.what());
-        res.status = 400;
-        res.set_content(error.dump(), "application/json");
+        web::http::http_response response(web::http::status_codes::BadRequest);
+        sendErrorResponse(
+            response,
+            400,
+            "Invalid request body: " + std::string(e.what())
+        );
+        request.reply(response);
     }
 }
 
-std::string AuthHandler::validateCredentials(const std::string& login, const std::string& password)
+std::string AuthHandler::validateCredentials(
+    const std::string& login,
+    const std::string& password
+)
 {
     // TODO: Реализовать проверку в БД
     // Временная заглушка для тестирования
@@ -164,8 +241,19 @@ std::string AuthHandler::validateCredentials(const std::string& login, const std
     {
         return "1";
     }
-
     return "";
+}
+
+void AuthHandler::sendErrorResponse(
+    web::http::http_response& response,
+    int code,
+    const std::string& message
+)
+{
+    web::json::value error;
+    error["code"] = web::json::value::number(code);
+    error["message"] = web::json::value::string(message);
+    response.set_body(error);
 }
 
 } // namespace handlers

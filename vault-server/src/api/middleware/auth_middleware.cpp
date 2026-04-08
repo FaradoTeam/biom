@@ -1,9 +1,8 @@
-#include <iostream>
 #include <regex>
 
-#include <httplib.h>
-
 #include <jwt-cpp/jwt.h>
+
+#include "common/log/log.h"
 
 #include "auth_middleware.h"
 
@@ -17,39 +16,44 @@ AuthMiddleware::AuthMiddleware(const std::string& secretKey)
 {
     if (m_secretKey.empty())
     {
-        std::cerr << "Warning: AuthMiddleware initialized with empty secret key" << std::endl;
+        LOG_ERROR
+            << "Warning: AuthMiddleware initialized with empty secret key";
     }
 }
 
-bool AuthMiddleware::validateRequest(const httplib::Request& req, std::string& userId)
+bool AuthMiddleware::validateRequest(const std::string& authHeader, std::string& userId)
 {
-    auto authHeader = req.get_header_value("Authorization");
+    // 1. Проверяем наличие заголовка Authorization
     if (authHeader.empty())
     {
-        std::cerr << "Missing Authorization header" << std::endl;
+        LOG_ERROR << "Missing Authorization header";
         return false;
     }
 
+    // 2. Извлекаем Bearer-токен
     std::string token = extractBearerToken(authHeader);
     if (token.empty())
     {
-        std::cerr << "Invalid Authorization header format" << std::endl;
+        LOG_ERROR << "Invalid Authorization header format";
         return false;
     }
 
+    // 3. Проверяем, не аннулирован ли токен
     if (isTokenInvalidated(token))
     {
-        std::cerr << "Token has been invalidated" << std::endl;
+        LOG_ERROR << "Token has been invalidated";
         return false;
     }
 
+    // 4. Верифицируем подпись, срок действия и issuer
     auto jwtToken = verifyToken(token);
     if (!jwtToken.has_value())
     {
-        std::cerr << "Invalid or expired token" << std::endl;
+        LOG_ERROR << "Invalid or expired token";
         return false;
     }
 
+    // 5. Всё успешно — возвращаем userId из токена
     userId = jwtToken->userId;
     return true;
 }
@@ -65,7 +69,7 @@ std::string AuthMiddleware::generateToken(const std::string& userId, int expires
         .set_payload_claim("user_id", jwt::claim(userId))
         .set_issued_at(now)
         .set_expires_at(expiresAt)
-        .sign(jwt::algorithm::hs256 { m_secretKey });
+        .sign(jwt::algorithm::hs256{m_secretKey});
 }
 
 std::optional<JWTToken> AuthMiddleware::verifyToken(const std::string& token)
@@ -75,7 +79,7 @@ std::optional<JWTToken> AuthMiddleware::verifyToken(const std::string& token)
         auto decoded = jwt::decode(token);
 
         auto verifier = jwt::verify()
-                            .allow_algorithm(jwt::algorithm::hs256 { m_secretKey })
+                            .allow_algorithm(jwt::algorithm::hs256{m_secretKey})
                             .with_issuer("farado-api");
 
         verifier.verify(decoded);
@@ -91,7 +95,7 @@ std::optional<JWTToken> AuthMiddleware::verifyToken(const std::string& token)
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Token verification failed: " << e.what() << std::endl;
+        LOG_ERROR << "Token verification failed: " << e.what();
     }
     return std::nullopt;
 }
@@ -101,15 +105,17 @@ void AuthMiddleware::invalidateToken(const std::string& token)
     auto jwtToken = verifyToken(token);
     if (!jwtToken.has_value())
     {
-        std::cerr << "Cannot invalidate invalid token" << std::endl;
+        LOG_ERROR << "Cannot invalidate invalid token";
         return;
     }
 
-    std::lock_guard<std::mutex> lock(m_blacklistMutex);
-    m_blacklist[token] = jwtToken->expiresAt;
+    {
+        std::lock_guard<std::mutex> lock(m_blacklistMutex);
+        m_blacklist[token] = jwtToken->expiresAt;
+    }
 
-    // Очищаем черный список
     auto now = std::chrono::system_clock::now();
+    std::lock_guard<std::mutex> lock(m_blacklistMutex);
     for (auto it = m_blacklist.begin(); it != m_blacklist.end();)
     {
         if (it->second < now)

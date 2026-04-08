@@ -1,9 +1,10 @@
 #include <iostream>
 #include <regex>
+#include <sstream>
 
-#include <httplib.h>
-
-#include <nlohmann/json.hpp>
+#include <cpprest/http_msg.h>
+#include <cpprest/json.h>
+#include <cpprest/uri.h>
 
 #include "common/log/log.h"
 
@@ -21,185 +22,285 @@ ItemsHandler::ItemsHandler()
     LOG_INFO << "ItemsHandler created";
 }
 
-void ItemsHandler::handleGetItems(const httplib::Request& req, httplib::Response& res, const std::string& userId)
+std::map<std::string, std::string> ItemsHandler::extractQueryParams(
+    const web::http::http_request& request
+)
+{
+    std::map<std::string, std::string> params;
+    auto uri = request.relative_uri();
+    auto query = uri.query();
+
+    if (!query.empty())
+    {
+        auto queryParams = web::uri::split_query(query);
+        for (const auto& param : queryParams)
+        {
+            params[param.first] = param.second;
+        }
+    }
+
+    return params;
+}
+
+void ItemsHandler::handleGetItems(
+    const web::http::http_request& request,
+    const std::string& userId
+)
 {
     LOG_INFO << "GET /api/items from user " << userId;
-    
+
     // Получаем параметры запроса
+    auto params = extractQueryParams(request);
+
     int page = 1;
     int pageSize = 20;
-    
-    if (req.has_param("page"))
+
+    if (params.find("page") != params.end())
     {
-        page = std::stoi(req.get_param_value("page"));
+        page = std::stoi(params["page"]);
     }
-    if (req.has_param("pageSize"))
+    if (params.find("pageSize") != params.end())
     {
-        pageSize = std::stoi(req.get_param_value("pageSize"));
+        pageSize = std::stoi(params["pageSize"]);
     }
-    
+
     // TODO: Здесь должна быть логика получения элементов из БД с учетом прав доступа
-    
-    nlohmann::json response;
-    response["items"] = nlohmann::json::array();
-    
+
+    web::json::value response;
+    response["items"] = web::json::value::array();
+
     // Пример данных
-    for (int i = (page - 1) * pageSize + 1; i <= page * pageSize && i <= 100; ++i)
+    int start = (page - 1) * pageSize + 1;
+    int end = std::min(page * pageSize, 100);
+
+    int index = 0;
+    for (int i = start; i <= end; ++i)
     {
-        nlohmann::json item;
-        item["id"] = i;
-        item["caption"] = "Item " + std::to_string(i);
-        item["content"] = "Content of item " + std::to_string(i);
-        response["items"].push_back(item);
+        web::json::value item;
+        item["id"] = web::json::value::number(i);
+        item["caption"] = web::json::value::string("Item " + std::to_string(i));
+        item["content"] = web::json::value::string("Content of item " + std::to_string(i));
+        response["items"][index++] = item;
     }
-    response["totalCount"] = 100;
-    response["page"] = page;
-    response["pageSize"] = pageSize;
-    
-    res.set_content(response.dump(), "application/json");
+    response["totalCount"] = web::json::value::number(100);
+    response["page"] = web::json::value::number(page);
+    response["pageSize"] = web::json::value::number(pageSize);
+
+    request.reply(web::http::status_codes::OK, response);
 }
 
-void ItemsHandler::handleGetItem(const httplib::Request& req, httplib::Response& res, const std::string& userId)
+void ItemsHandler::handleGetItem(
+    const web::http::http_request& request,
+    const std::string& userId
+)
 {
-    int64_t itemId = extractItemId(req);
+    int64_t itemId = extractItemId(request);
     if (itemId <= 0)
     {
-        nlohmann::json error;
-        error["code"] = 400;
-        error["message"] = "Invalid item ID";
-        res.status = 400;
-        res.set_content(error.dump(), "application/json");
+        web::http::http_response response(web::http::status_codes::BadRequest);
+        sendErrorResponse(response, 400, "Invalid item ID");
+        request.reply(response);
         return;
     }
-    
+
     LOG_INFO << "GET /api/items/" << itemId << " from user " << userId;
-    
+
     // TODO: Здесь должна быть логика получения элемента из БД с проверкой прав
-    
-    nlohmann::json response;
-    response["id"] = itemId;
-    response["caption"] = "Item " + std::to_string(itemId);
-    response["content"] = "Content of item " + std::to_string(itemId);
-    response["stateId"] = 1;
-    response["phaseId"] = 1;
-    
-    res.set_content(response.dump(), "application/json");
+
+    web::json::value response;
+    response["id"] = web::json::value::number(itemId);
+    response["caption"] = web::json::value::string("Item " + std::to_string(itemId));
+    response["content"] = web::json::value::string("Content of item " + std::to_string(itemId));
+    response["stateId"] = web::json::value::number(1);
+    response["phaseId"] = web::json::value::number(1);
+
+    request.reply(web::http::status_codes::OK, response);
 }
 
-void ItemsHandler::handleCreateItem(const httplib::Request& req, httplib::Response& res, const std::string& userId)
+void ItemsHandler::handleCreateItem(
+    const web::http::http_request& request,
+    const std::string& userId
+)
 {
     LOG_INFO << "POST /api/items from user " << userId;
-    
+
     try
     {
-        nlohmann::json request = nlohmann::json::parse(req.body);
-        
-        // Валидация обязательных полей
-        if (!request.contains("caption") || request["caption"].get<std::string>().empty())
-        {
-            nlohmann::json error;
-            error["code"] = 400;
-            error["message"] = "Field 'caption' is required";
-            res.status = 400;
-            res.set_content(error.dump(), "application/json");
-            return;
-        }
-        
-        // TODO: Здесь должна быть логика создания элемента в БД
-        
-        nlohmann::json response;
-        response["id"] = 100;  // Сгенерированный ID
-        response["caption"] = request["caption"];
-        response["success"] = true;
-        
-        res.status = 201;
-        res.set_content(response.dump(), "application/json");
+        request
+            .extract_json()
+            .then(
+                [this, request, userId](pplx::task<web::json::value> task)
+                {
+                    web::json::value jsonBody;
+                    try
+                    {
+                        jsonBody = task.get();
+                    }
+                    catch (const std::exception& e)
+                    {
+                        web::http::http_response response(
+                            web::http::status_codes::BadRequest
+                        );
+                        sendErrorResponse(
+                            response,
+                            400,
+                            "Invalid JSON: " + std::string(e.what())
+                        );
+                        request.reply(response);
+                        return;
+                    }
+
+                    // Валидация обязательных полей
+                    if (!jsonBody.has_field("caption")
+                        || jsonBody.at("caption").as_string().empty())
+                    {
+                        web::http::http_response response(
+                            web::http::status_codes::BadRequest
+                        );
+                        sendErrorResponse(
+                            response,
+                            400,
+                            "Field 'caption' is required"
+                        );
+                        request.reply(response);
+                        return;
+                    }
+
+                    // TODO: Здесь должна быть логика создания элемента в БД
+
+                    web::json::value response;
+                    response["id"] = web::json::value::number(100); // Сгенерированный ID
+                    response["caption"] = jsonBody.at("caption");
+                    response["success"] = web::json::value::boolean(true);
+
+                    request.reply(web::http::status_codes::Created, response);
+                }
+            )
+            .wait();
     }
     catch (const std::exception& e)
     {
-        nlohmann::json error;
-        error["code"] = 400;
-        error["message"] = "Invalid JSON: " + std::string(e.what());
-        res.status = 400;
-        res.set_content(error.dump(), "application/json");
+        web::http::http_response response(web::http::status_codes::BadRequest);
+        sendErrorResponse(
+            response,
+            400,
+            "Invalid request: " + std::string(e.what())
+        );
+        request.reply(response);
     }
 }
 
-void ItemsHandler::handleUpdateItem(const httplib::Request& req, httplib::Response& res, const std::string& userId)
+void ItemsHandler::handleUpdateItem(const web::http::http_request& request, const std::string& userId)
 {
-    int64_t itemId = extractItemId(req);
+    int64_t itemId = extractItemId(request);
     if (itemId <= 0)
     {
-        nlohmann::json error;
-        error["code"] = 400;
-        error["message"] = "Invalid item ID";
-        res.status = 400;
-        res.set_content(error.dump(), "application/json");
+        web::http::http_response response(web::http::status_codes::BadRequest);
+        sendErrorResponse(response, 400, "Invalid item ID");
+        request.reply(response);
         return;
     }
-    
+
     LOG_INFO << "PUT /api/items/" << itemId << " from user " << userId;
-    
+
     try
     {
-        nlohmann::json request = nlohmann::json::parse(req.body);
-        
-        // TODO: Здесь должна быть логика обновления элемента в БД
-        
-        nlohmann::json response;
-        response["id"] = itemId;
-        response["caption"] = request.value("caption", "");
-        response["success"] = true;
-        
-        res.set_content(response.dump(), "application/json");
+        request
+            .extract_json()
+            .then(
+                [this, request, itemId](pplx::task<web::json::value> task)
+                {
+                    web::json::value jsonBody;
+                    try
+                    {
+                        jsonBody = task.get();
+                    }
+                    catch (const std::exception& e)
+                    {
+                        web::http::http_response response(
+                            web::http::status_codes::BadRequest
+                        );
+                        sendErrorResponse(
+                            response,
+                            400,
+                            "Invalid JSON: " + std::string(e.what())
+                        );
+                        request.reply(response);
+                        return;
+                    }
+
+                    // TODO: Здесь должна быть логика обновления элемента в БД
+
+                    web::json::value response;
+                    response["id"] = web::json::value::number(itemId);
+                    response["caption"] = jsonBody.has_field("caption")
+                        ? jsonBody.at("caption")
+                        : web::json::value::string("");
+                    response["success"] = web::json::value::boolean(true);
+
+                    request.reply(web::http::status_codes::OK, response);
+                }
+            )
+            .wait();
     }
     catch (const std::exception& e)
     {
-        nlohmann::json error;
-        error["code"] = 400;
-        error["message"] = "Invalid JSON: " + std::string(e.what());
-        res.status = 400;
-        res.set_content(error.dump(), "application/json");
+        web::http::http_response response(web::http::status_codes::BadRequest);
+        sendErrorResponse(response, 400, "Invalid request: " + std::string(e.what()));
+        request.reply(response);
     }
 }
 
-void ItemsHandler::handleDeleteItem(const httplib::Request& req, httplib::Response& res, const std::string& userId)
+void ItemsHandler::handleDeleteItem(const web::http::http_request& request, const std::string& userId)
 {
-    int64_t itemId = extractItemId(req);
+    int64_t itemId = extractItemId(request);
     if (itemId <= 0)
     {
-        nlohmann::json error;
-        error["code"] = 400;
-        error["message"] = "Invalid item ID";
-        res.status = 400;
-        res.set_content(error.dump(), "application/json");
+        web::http::http_response response(web::http::status_codes::BadRequest);
+        sendErrorResponse(response, 400, "Invalid item ID");
+        request.reply(response);
         return;
     }
-    
+
     LOG_INFO << "DELETE /api/items/" << itemId << " from user " << userId;
-    
+
     // TODO: Здесь должна быть логика удаления элемента из БД
-    
-    res.status = 204;
+
+    request.reply(web::http::status_codes::NoContent);
 }
 
-int64_t ItemsHandler::extractItemId(const httplib::Request& req)
+int64_t ItemsHandler::extractItemId(const web::http::http_request& request)
 {
-    // Путь имеет формат /api/items/123
-    // Используем matches из regex, который мы установили в роутере
-    if (req.matches.size() > 1)
+    // Извлекаем ID из пути
+    std::string path = web::uri::decode(request.relative_uri().path());
+    std::regex pattern(R"(/api/items/(\d+))");
+    std::smatch matches;
+
+    if (std::regex_match(path, matches, pattern) && matches.size() > 1)
     {
         try
         {
-            return std::stoll(req.matches[1]);
+            return std::stoll(matches[1].str());
         }
         catch (const std::exception&)
         {
             return -1;
         }
     }
-    
+
     return -1;
+}
+
+void ItemsHandler::sendErrorResponse(
+    web::http::http_response& response,
+    int code,
+    const std::string& message
+)
+{
+    web::json::value error;
+    error["code"] = web::json::value::number(code);
+    error["message"] = web::json::value::string(message);
+    response.set_body(error);
 }
 
 } // namespace handlers

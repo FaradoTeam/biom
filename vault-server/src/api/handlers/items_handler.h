@@ -2,12 +2,10 @@
 
 #include <memory>
 #include <string>
+#include <map>
 
-namespace httplib
-{
-class Request;
-class Response;
-}
+#include <cpprest/http_msg.h>
+#include <cpprest/json.h>
 
 namespace farado
 {
@@ -26,8 +24,7 @@ public:
      * Получает список элементов
      */
     void handleGetItems(
-        const httplib::Request& req,
-        httplib::Response& res,
+        const web::http::http_request& request,
         const std::string& userId
     );
 
@@ -35,8 +32,7 @@ public:
      * Получает элемент по ID
      */
     void handleGetItem(
-        const httplib::Request& req,
-        httplib::Response& res,
+        const web::http::http_request& request,
         const std::string& userId
     );
 
@@ -44,8 +40,7 @@ public:
      * Создает новый элемент
      */
     void handleCreateItem(
-        const httplib::Request& req,
-        httplib::Response& res,
+        const web::http::http_request& request,
         const std::string& userId
     );
 
@@ -53,8 +48,7 @@ public:
      * Обновляет существующий элемент
      */
     void handleUpdateItem(
-        const httplib::Request& req,
-        httplib::Response& res,
+        const web::http::http_request& request,
         const std::string& userId
     );
 
@@ -62,8 +56,7 @@ public:
      * Удаляет элемент
      */
     void handleDeleteItem(
-        const httplib::Request& req,
-        httplib::Response& res,
+        const web::http::http_request& request,
         const std::string& userId
     );
 
@@ -71,7 +64,18 @@ private:
     /**
      * Извлекает ID из пути запроса
      */
-    int64_t extractItemId(const httplib::Request& req);
+    int64_t extractItemId(const web::http::http_request& request);
+    
+    void sendErrorResponse(
+        web::http::http_response& response,
+        int code,
+        const std::string& message
+    );
+
+private:
+    std::map<std::string, std::string> extractQueryParams(
+        const web::http::http_request& request
+    );
 };
 
 } // namespace handlers

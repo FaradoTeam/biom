@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <iostream>
 #include <fstream>
 
 #include <nlohmann/json.hpp>
@@ -9,7 +8,6 @@
 #include "application.h"
 
 #include "api/rest_server.h"
-
 
 namespace farado
 {
@@ -36,7 +34,7 @@ bool Application::initialize()
 
     m_restServer = std::make_shared<RestServer>("0.0.0.0", 8080);
     m_restServer->setAuthMiddleware(authMiddleware);
-    
+
     if (!m_restServer->initialize())
     {
         LOG_ERROR << "Failed to initialize REST server";

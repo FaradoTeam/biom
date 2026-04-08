@@ -10,6 +10,7 @@ find_package(Boost REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(cpprestsdk REQUIRED)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
@@ -56,7 +57,9 @@ target_link_libraries(
     boost::boost
     nlohmann_json::nlohmann_json
     Threads::Threads
-    openssl::openssl
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    cpprestsdk::cpprest
 )
 
 target_include_directories(
@@ -64,7 +67,6 @@ target_include_directories(
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/..
-    ${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty/cpp-httplib/include/
     ${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty/jwt-cpp/include/
 )
 

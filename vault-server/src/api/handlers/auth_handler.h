@@ -3,21 +3,15 @@
 #include <memory>
 #include <string>
 
-#include "../middleware/auth_middleware.h"
+#include <cpprest/http_msg.h>
+#include <cpprest/json.h>
 
-namespace httplib
-{
-class Request;
-class Response;
-}
+#include "../middleware/auth_middleware.h"
 
 namespace farado
 {
 namespace server
 {
-
-// class AuthMiddleware;
-
 namespace handlers
 {
 
@@ -30,20 +24,31 @@ public:
     /**
      * Обрабатывает запрос на вход
      */
-    void handleLogin(const httplib::Request& req, httplib::Response& res);
+    void handleLogin(const web::http::http_request& request);
 
     /**
      * Обрабатывает запрос на выход
      */
-    void handleLogout(const httplib::Request& req, httplib::Response& res);
+    void handleLogout(const web::http::http_request& request);
 
     /**
      * Обрабатывает запрос на смену пароля
      */
-    void handleChangePassword(const httplib::Request& req, httplib::Response& res, const std::string& userId);
+    void handleChangePassword(
+        const web::http::http_request& request,
+        const std::string& userId
+    );
 
 private:
-    std::string validateCredentials(const std::string& login, const std::string& password);
+    std::string validateCredentials(
+        const std::string& login,
+        const std::string& password
+    );
+    void sendErrorResponse(
+        web::http::http_response& response,
+        int code,
+        const std::string& message
+    );
 
 private:
     std::shared_ptr<AuthMiddleware> m_authMiddleware;

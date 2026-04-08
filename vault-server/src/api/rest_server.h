@@ -2,30 +2,30 @@
 
 #include <atomic>
 #include <functional>
+#include <map>
 #include <memory>
+#include <regex>
 #include <string>
 #include <thread>
+#include <vector>
+
+#include <cpprest/http_listener.h>
+#include <cpprest/json.h>
 
 #include "middleware/auth_middleware.h"
-
-namespace httplib
-{
-class Server;
-class Request;
-class Response;
-}
 
 namespace farado
 {
 namespace server
 {
 
-// class AuthMiddleware;
-
 class RestServer final
 {
 public:
-    using RouteHandler = std::function<void(const httplib::Request&, httplib::Response&)>;
+    using RouteHandler = std::function<void(
+        const web::http::http_request&,
+        const std::string& userId
+    )>;
 
     explicit RestServer(const std::string& host = "0.0.0.0", uint16_t port = 8080);
     ~RestServer();
@@ -35,29 +35,49 @@ public:
     void stop();
     bool isRunning() const { return m_isRunning; }
 
-    void get(const std::string& path, RouteHandler handler);
-    void post(const std::string& path, RouteHandler handler);
-    void put(const std::string& path, RouteHandler handler);
-    void del(const std::string& path, RouteHandler handler);
-
     void setAuthMiddleware(std::shared_ptr<AuthMiddleware> middleware);
 
 private:
     void registerRoutes();
+    void setupListener();
+    void handleRequest(web::http::http_request request);
     bool applyAuthMiddleware(
-        const httplib::Request& req,
-        httplib::Response& res,
+        const web::http::http_request& request,
         std::string& userId
+    );
+
+    void addRoute(
+        const web::http::method& method,
+        const std::string& path,
+        RouteHandler handler,
+        bool isPublic = false
+    );
+
+    bool matchRoute(
+        const web::http::method& method,
+        const std::string& uriPath,
+        RouteHandler& handler,
+        bool& isPublic,
+        std::map<std::string, std::string>& params
     );
 
 private:
     const std::string m_host;
     const uint16_t m_port;
+    std::string m_baseUrl;
 
-    std::unique_ptr<httplib::Server> m_server;
+    std::unique_ptr<web::http::experimental::listener::http_listener> m_listener;
     std::shared_ptr<AuthMiddleware> m_authMiddleware;
     std::atomic<bool> m_isRunning { false };
-    std::unique_ptr<std::thread> m_serverThread;
+
+    struct RouteInfo
+    {
+        web::http::method method;
+        std::string pathPattern;
+        RouteHandler handler;
+        bool isPublic; // Флаг публичного маршрута (не требует аутентификации)
+    };
+    std::vector<RouteInfo> m_routes;
 };
 
 } // namespace server

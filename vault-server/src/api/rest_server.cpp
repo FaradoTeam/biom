@@ -1,17 +1,15 @@
-#include <iostream>
-
+#include <chrono>
 #include <memory>
-#include <nlohmann/json.hpp>
+#include <regex>
 
-#define CPPHTTPLIB_OPENSSL_SUPPORT
-#include <httplib.h>
+#include <cpprest/http_msg.h>
+#include <cpprest/uri.h>
 
 #include "common/log/log.h"
 
-#include "rest_server.h"
-
 #include "handlers/auth_handler.h"
 #include "handlers/items_handler.h"
+#include "rest_server.h"
 
 namespace farado
 {
@@ -19,12 +17,13 @@ namespace server
 {
 
 RestServer::RestServer(const std::string& host, uint16_t port)
-    : m_server(std::make_unique<httplib::Server>())
-    , m_host(host)
+    : m_host(host)
     , m_port(port)
+    , m_baseUrl("http://" + host + ":" + std::to_string(port))
     , m_isRunning(false)
 {
-    LOG_INFO << "RestServer created with host=" << m_host << ", port=" << m_port;
+    LOG_INFO
+        << "RestServer created with host=" << m_host << ", port=" << m_port;
 }
 
 RestServer::~RestServer()
@@ -36,211 +35,287 @@ bool RestServer::initialize()
 {
     LOG_INFO << "Initializing REST server...";
 
-    if (!m_server)
-    {
-        LOG_ERROR << "Failed to create HTTP server";
-        return false;
-    }
-
-    // Настройка сервера
-    m_server->set_keep_alive_max_count(100);
-    m_server->set_read_timeout(std::chrono::seconds(30));
-    m_server->set_write_timeout(std::chrono::seconds(30));
-    m_server->set_idle_interval(std::chrono::seconds(5));
-
-    // Регистрируем обработчики ошибок
-    m_server->set_error_handler(
-        [](const httplib::Request& req, httplib::Response& res)
-        {
-            nlohmann::json error;
-            error["code"] = res.status;
-            error["message"] = "Internal server error";
-            error["path"] = req.path;
-
-            res.set_content(error.dump(), "application/json");
-        }
-    );
-
-    m_server->set_exception_handler(
-        [](const httplib::Request& req, httplib::Response& res, std::exception_ptr ep)
-        {
-            nlohmann::json error;
-            error["code"] = 500;
-            error["message"] = "Internal server exception";
-            error["path"] = req.path;
-
-            res.status = 500;
-            res.set_content(error.dump(), "application/json");
-        }
-    );
-
-    // Регистрируем маршруты
     registerRoutes();
+    setupListener();
 
     LOG_INFO << "REST server initialized successfully";
     return true;
 }
 
+void RestServer::setupListener()
+{
+    const web::http::uri address = web::http::uri(m_baseUrl);
+    m_listener = std::make_unique<web::http::experimental::listener::http_listener>(
+        address
+    );
+
+    m_listener->support(
+        [this](web::http::http_request request)
+        {
+            try
+            {
+                handleRequest(std::move(request));
+            }
+            catch (const std::exception& e)
+            {
+                LOG_ERROR << "Request handling error: " << e.what();
+                web::json::value error;
+                error["code"] = web::json::value::number(500);
+                error["message"] = web::json::value::string(
+                    "Internal server error: " + std::string(e.what())
+                );
+                request.reply(web::http::status_codes::InternalError, error);
+            }
+        }
+    );
+}
+
 void RestServer::registerRoutes()
 {
-    // Создаем обработчики
     auto itemsHandler = std::make_shared<handlers::ItemsHandler>();
     auto authHandler = std::make_shared<handlers::AuthHandler>(m_authMiddleware);
 
-    // =====================================================
     // Публичные маршруты (без аутентификации)
-    // =====================================================
-
-    // Аутентификация
-    post(
+    addRoute(
+        web::http::methods::POST,
         "/auth/login",
-        [authHandler](const httplib::Request& req, httplib::Response& res)
+        [authHandler](
+            const web::http::http_request& request,
+            const std::string& /*userId*/
+        )
         {
-            authHandler->handleLogin(req, res);
-        }
+            authHandler->handleLogin(request);
+        },
+        true // isPublic
     );
 
-    post(
+    addRoute(
+        web::http::methods::POST,
         "/auth/logout",
-        [authHandler](const httplib::Request& req, httplib::Response& res)
+        [authHandler](
+            const web::http::http_request& request,
+            const std::string& /*userId*/
+        )
         {
-            authHandler->handleLogout(req, res);
-        }
+            authHandler->handleLogout(request);
+        },
+        true // isPublic
     );
 
-    // =====================================================
     // Защищенные маршруты (требуют аутентификации)
-    // =====================================================
-
-    // Items API
-    get(
+    addRoute(
+        web::http::methods::GET,
         "/api/items",
-        [itemsHandler, this](const httplib::Request& req, httplib::Response& res)
+        [itemsHandler](
+            const web::http::http_request& request,
+            const std::string& userId
+        )
         {
-            std::string userId;
-            if (!applyAuthMiddleware(req, res, userId))
-            {
-                return;
-            }
-            itemsHandler->handleGetItems(req, res, userId);
-        }
+            itemsHandler->handleGetItems(request, userId);
+        },
+        false // requires auth
     );
 
-    post(
+    addRoute(
+        web::http::methods::POST,
         "/api/items",
-        [itemsHandler, this](const httplib::Request& req, httplib::Response& res)
+        [itemsHandler](
+            const web::http::http_request& request,
+            const std::string& userId
+        )
         {
-            std::string userId;
-            if (!applyAuthMiddleware(req, res, userId))
-            {
-                return;
-            }
-            itemsHandler->handleCreateItem(req, res, userId);
-        }
+            itemsHandler->handleCreateItem(request, userId);
+        },
+        false
     );
 
-    get(
+    addRoute(
+        web::http::methods::GET,
         R"(/api/items/(\d+))",
-        [itemsHandler, this](const httplib::Request& req, httplib::Response& res)
+        [itemsHandler](
+            const web::http::http_request& request,
+            const std::string& userId
+        )
         {
-            std::string userId;
-            if (!applyAuthMiddleware(req, res, userId))
-            {
-                return;
-            }
-            itemsHandler->handleGetItem(req, res, userId);
-        }
+            itemsHandler->handleGetItem(request, userId);
+        },
+        false
     );
 
-    put(
+    addRoute(
+        web::http::methods::PUT,
         R"(/api/items/(\d+))",
-        [itemsHandler, this](const httplib::Request& req, httplib::Response& res)
+        [itemsHandler](
+            const web::http::http_request& request,
+            const std::string& userId
+        )
         {
-            std::string userId;
-            if (!applyAuthMiddleware(req, res, userId))
-            {
-                return;
-            }
-            itemsHandler->handleUpdateItem(req, res, userId);
-        }
+            itemsHandler->handleUpdateItem(request, userId);
+        },
+        false
     );
 
-    del(
+    addRoute(
+        web::http::methods::DEL,
         R"(/api/items/(\d+))",
-        [itemsHandler, this](const httplib::Request& req, httplib::Response& res)
+        [itemsHandler](
+            const web::http::http_request& request,
+            const std::string& userId
+        )
         {
-            std::string userId;
-            if (!applyAuthMiddleware(req, res, userId))
-            {
-                return;
-            }
-            itemsHandler->handleDeleteItem(req, res, userId);
-        }
+            itemsHandler->handleDeleteItem(request, userId);
+        },
+        false
     );
 
-    // Health check (публичный)
-    get(
+    // Health check - публичный
+    addRoute(
+        web::http::methods::GET,
         "/health",
-        [](const httplib::Request& req, httplib::Response& res)
+        [](
+            const web::http::http_request& request,
+            const std::string& /*userId*/
+        )
         {
-            nlohmann::json status;
-            status["status"] = "ok";
-            status["timestamp"] = std::time(nullptr);
-            res.set_content(status.dump(), "application/json");
-        }
+            web::json::value response;
+            response["status"] = web::json::value::string("ok");
+            response["timestamp"] = web::json::value::number(
+                std::chrono::duration_cast<std::chrono::seconds>(
+                    std::chrono::system_clock::now().time_since_epoch()
+                ).count()
+            );
+            request.reply(web::http::status_codes::OK, response);
+        },
+        true // isPublic
     );
 
-    LOG_INFO << "Routes registered successfully";
+    LOG_INFO << "Routes registered successfully, total: " << m_routes.size();
+}
+
+void RestServer::addRoute(
+    const web::http::method& method,
+    const std::string& path,
+    RouteHandler handler,
+    bool isPublic
+)
+{
+    RouteInfo route;
+    route.method = method;
+    route.pathPattern = path;
+    route.handler = handler;
+    route.isPublic = isPublic;
+    m_routes.push_back(route);
+}
+
+bool RestServer::matchRoute(
+    const web::http::method& method,
+    const std::string& uriPath,
+    RouteHandler& handler,
+    bool& isPublic,
+    std::map<std::string, std::string>& params
+)
+{
+    for (const auto& route : m_routes)
+    {
+        if (route.method != method)
+            continue;
+
+        std::regex pattern(route.pathPattern);
+        std::smatch matches;
+
+        if (std::regex_match(uriPath, matches, pattern))
+        {
+            handler = route.handler;
+            isPublic = route.isPublic;
+
+            // Извлекаем параметры из пути (например, ID)
+            if (matches.size() > 1)
+            {
+                params["id"] = matches[1].str();
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+void RestServer::handleRequest(web::http::http_request request)
+{
+    const std::string path = web::uri::decode(request.relative_uri().path());
+    const auto method = request.method();
+
+    LOG_INFO << "Incoming request: " << method << " " << path;
+
+    RouteHandler handler;
+    bool isPublic = false;
+    std::map<std::string, std::string> pathParams;
+
+    if (!matchRoute(method, path, handler, isPublic, pathParams))
+    {
+        web::json::value error;
+        error["code"] = web::json::value::number(404);
+        error["message"] = web::json::value::string("Not found");
+        request.reply(web::http::status_codes::NotFound, error);
+        return;
+    }
+
+    // Аутентификация только для защищенных маршрутов
+    if (!isPublic)
+    {
+        std::string userId;
+        if (!applyAuthMiddleware(request, userId))
+        {
+            return; // Ответ уже отправлен в applyAuthMiddleware
+        }
+        handler(request, userId);
+    }
+    else
+    {
+        handler(request, "");
+    }
 }
 
 bool RestServer::applyAuthMiddleware(
-    const httplib::Request& req,
-    httplib::Response& res,
+    const web::http::http_request& request,
     std::string& userId
 )
 {
     if (!m_authMiddleware)
     {
         LOG_ERROR << "Auth middleware not set";
-        res.status = 500;
-        nlohmann::json error;
-        error["code"] = 500;
-        error["message"] = "Internal server error: auth middleware not configured";
-        res.set_content(error.dump(), "application/json");
+        web::json::value error;
+        error["code"] = web::json::value::number(500);
+        error["message"] = web::json::value::string(
+            "Internal server error: auth middleware not configured"
+        );
+        request.reply(web::http::status_codes::InternalError, error);
         return false;
     }
 
-    if (!m_authMiddleware->validateRequest(req, userId))
+    auto authHeader = request.headers().find("Authorization");
+    if (authHeader == request.headers().end())
     {
-        res.status = 401;
-        nlohmann::json error;
-        error["code"] = 401;
-        error["message"] = "Unauthorized: invalid or missing token";
-        res.set_content(error.dump(), "application/json");
+        web::json::value error;
+        error["code"] = web::json::value::number(401);
+        error["message"] = web::json::value::string(
+            "Missing Authorization header"
+        );
+        request.reply(web::http::status_codes::Unauthorized, error);
+        return false;
+    }
+
+    if (!m_authMiddleware->validateRequest(authHeader->second, userId))
+    {
+        web::json::value error;
+        error["code"] = web::json::value::number(401);
+        error["message"] = web::json::value::string(
+            "Invalid or expired token"
+        );
+        request.reply(web::http::status_codes::Unauthorized, error);
         return false;
     }
 
     return true;
-}
-
-void RestServer::get(const std::string& path, RouteHandler handler)
-{
-    m_server->Get(path, handler);
-}
-
-void RestServer::post(const std::string& path, RouteHandler handler)
-{
-    m_server->Post(path, handler);
-}
-
-void RestServer::put(const std::string& path, RouteHandler handler)
-{
-    m_server->Put(path, handler);
-}
-
-void RestServer::del(const std::string& path, RouteHandler handler)
-{
-    m_server->Delete(path, handler);
 }
 
 void RestServer::setAuthMiddleware(std::shared_ptr<AuthMiddleware> middleware)
@@ -259,29 +334,21 @@ bool RestServer::start()
 
     LOG_INFO << "Starting REST server on " << m_host << ":" << m_port << "...";
 
-    m_isRunning = true;
-
-    // Запускаем сервер в отдельном потоке
-    m_serverThread = std::make_unique<std::thread>(
-        [this]()
-        {
-            if (!m_server->listen(m_host.c_str(), m_port))
-            {
-                LOG_ERROR << "Failed to start server on " << m_host << ":" << m_port;
-                m_isRunning = false;
-            }
-        }
-    );
-
-    // Даем серверу время на запуск
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    if (m_isRunning)
+    try
     {
-        LOG_INFO << "REST server started successfully on " << m_host << ":" << m_port;
+        m_listener->open().wait();
+        m_isRunning = true;
+        LOG_INFO
+            << "REST server started successfully on "
+            << m_host << ":" << m_port;
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << "Failed to start server: " << e.what();
+        return false;
     }
 
-    return m_isRunning;
+    return true;
 }
 
 void RestServer::stop()
@@ -294,14 +361,16 @@ void RestServer::stop()
     LOG_INFO << "Stopping REST server...";
     m_isRunning = false;
 
-    if (m_server)
+    try
     {
-        m_server->stop();
+        if (m_listener)
+        {
+            m_listener->close().wait();
+        }
     }
-
-    if (m_serverThread && m_serverThread->joinable())
+    catch (const std::exception& e)
     {
-        m_serverThread->join();
+        LOG_ERROR << "Error stopping server: " << e.what();
     }
 
     LOG_INFO << "REST server stopped";

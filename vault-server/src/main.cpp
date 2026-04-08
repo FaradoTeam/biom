@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
     std::signal(SIGINT, signalHandler);
     std::signal(SIGTERM, signalHandler);
 
-    LOG_INFO << "Farado Server Starting..." << std::endl;
+    LOG_INFO << "Farado Server Starting...";
 
     int result = 0;
     {
