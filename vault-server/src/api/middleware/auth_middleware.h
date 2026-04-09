@@ -59,6 +59,7 @@ public:
 private:
     std::string extractBearerToken(const std::string& authHeader);
     std::optional<JWTToken> verifyToken(const std::string& token);
+    void cleanBlacklist();
 
 private:
     std::string m_secretKey;

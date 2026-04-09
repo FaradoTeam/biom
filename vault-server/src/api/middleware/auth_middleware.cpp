@@ -63,13 +63,17 @@ std::string AuthMiddleware::generateToken(const std::string& userId, int expires
     const auto now = std::chrono::system_clock::now();
     const auto expiresAt = now + std::chrono::seconds(expiresInSeconds);
 
+    LOG_DEBUG
+        << "Generating token for user " << userId
+        << " expires at: " << std::chrono::system_clock::to_time_t(expiresAt);
+
     return jwt::create()
         .set_type("JWT")
         .set_issuer("farado-api")
         .set_payload_claim("user_id", jwt::claim(userId))
         .set_issued_at(now)
         .set_expires_at(expiresAt)
-        .sign(jwt::algorithm::hs256{m_secretKey});
+        .sign(jwt::algorithm::hs256 { m_secretKey });
 }
 
 std::optional<JWTToken> AuthMiddleware::verifyToken(const std::string& token)
@@ -79,7 +83,7 @@ std::optional<JWTToken> AuthMiddleware::verifyToken(const std::string& token)
         auto decoded = jwt::decode(token);
 
         auto verifier = jwt::verify()
-                            .allow_algorithm(jwt::algorithm::hs256{m_secretKey})
+                            .allow_algorithm(jwt::algorithm::hs256 { m_secretKey })
                             .with_issuer("farado-api");
 
         verifier.verify(decoded);
@@ -87,10 +91,7 @@ std::optional<JWTToken> AuthMiddleware::verifyToken(const std::string& token)
         JWTToken result;
         result.token = token;
         result.userId = decoded.get_payload_claim("user_id").as_string();
-        result.expiresAt = std::chrono::system_clock::from_time_t(
-            decoded.get_expires_at().time_since_epoch().count()
-        );
-
+        result.expiresAt = decoded.get_expires_at();
         return result;
     }
     catch (const std::exception& e)
@@ -109,24 +110,23 @@ void AuthMiddleware::invalidateToken(const std::string& token)
         return;
     }
 
+    LOG_DEBUG
+        << "Token verified, userId: " << jwtToken->userId << ", expires at: "
+        << std::chrono::system_clock::to_time_t(jwtToken->expiresAt);
+
     {
         std::lock_guard<std::mutex> lock(m_blacklistMutex);
         m_blacklist[token] = jwtToken->expiresAt;
+        LOG_DEBUG
+            << "Token added to blacklist, blacklist size: "
+            << m_blacklist.size();
     }
 
-    auto now = std::chrono::system_clock::now();
-    std::lock_guard<std::mutex> lock(m_blacklistMutex);
-    for (auto it = m_blacklist.begin(); it != m_blacklist.end();)
-    {
-        if (it->second < now)
-        {
-            it = m_blacklist.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
+    // Периодическая очистка
+    // TODO : сделать в отдельном потоке
+    static int invalidateCount = 0;
+    if (++invalidateCount % 10 == 0)
+        cleanBlacklist();
 }
 
 bool AuthMiddleware::isTokenInvalidated(const std::string& token)
@@ -135,11 +135,9 @@ bool AuthMiddleware::isTokenInvalidated(const std::string& token)
 
     auto it = m_blacklist.find(token);
     if (it == m_blacklist.end())
-    {
         return false;
-    }
 
-    auto now = std::chrono::system_clock::now();
+    const auto now = std::chrono::system_clock::now();
     if (it->second < now)
     {
         m_blacklist.erase(it);
@@ -160,6 +158,25 @@ std::string AuthMiddleware::extractBearerToken(const std::string& authHeader)
     }
 
     return "";
+}
+
+void AuthMiddleware::cleanBlacklist()
+{
+    const auto now = std::chrono::system_clock::now();
+    std::lock_guard<std::mutex> lock(m_blacklistMutex);
+
+    for (auto it = m_blacklist.begin(); it != m_blacklist.end();)
+    {
+        if (it->second < now)
+        {
+            LOG_INFO << "Removing expired token from blacklist";
+            it = m_blacklist.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
 
 } // namespace server

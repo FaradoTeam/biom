@@ -22,7 +22,7 @@ namespace farado::server::test
 const std::string TEST_HOST = "127.0.0.1";
 const uint16_t TEST_PORT = 18080;
 const std::string TEST_BASE_URL = "http://" + TEST_HOST + ":" + std::to_string(TEST_PORT);
-const std::string TEST_SECRET_KEY = "test-secret-key-for-integration-tests";
+const std::string TEST_SECRET_KEY = "your-very-long-secret-key-that-is-at-least-32-bytes-long!";
 
 /**
  * @brief Вспомогательные функции для работы с JSON в тестах

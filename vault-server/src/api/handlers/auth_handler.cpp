@@ -125,6 +125,7 @@ void AuthHandler::handleLogout(const web::http::http_request& request)
     auto authHeader = request.headers().find("Authorization");
     if (authHeader == request.headers().end())
     {
+        LOG_ERROR << "No Authorization header in logout request";
         request.reply(web::http::status_codes::Unauthorized);
         return;
     }
@@ -132,15 +133,20 @@ void AuthHandler::handleLogout(const web::http::http_request& request)
     // Извлекаем Bearer токен
     std::regex bearerRegex(R"(^Bearer\s+([a-zA-Z0-9\-_\.]+)$)");
     std::smatch matches;
-    std::string token;
 
     if (std::regex_match(authHeader->second, matches, bearerRegex) && matches.size() > 1)
     {
-        token = matches[1].str();
+        const std::string token = matches[1].str();
+        LOG_INFO << "Logout: invalidating token";
         m_authMiddleware->invalidateToken(token);
+        request.reply(web::http::status_codes::NoContent);
+    }
+    else
+    {
+        LOG_ERROR << "Invalid Authorization header format in logout";
+        request.reply(web::http::status_codes::BadRequest);
     }
 
-    request.reply(web::http::status_codes::NoContent);
     LOG_INFO << "User logged out";
 }
 
