@@ -10,6 +10,7 @@ find_package(nlohmann_json REQUIRED)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(cpprestsdk REQUIRED)
+find_package(jwt-cpp REQUIRED)
 
 set(API_SERVER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/../../vault-server/src/api/rest_server.cpp
@@ -36,7 +37,6 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}/../../vault-server/src
     ${Boost_INCLUDE_DIRS}
     ${nlohmann_json_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../thirdparty/jwt-cpp/include/
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -46,6 +46,7 @@ target_link_libraries(${PROJECT_NAME}
     OpenSSL::SSL
     OpenSSL::Crypto
     cpprestsdk::cpprest
+    jwt-cpp::jwt-cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

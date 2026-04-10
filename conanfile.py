@@ -11,3 +11,4 @@ class FaradoConanFile(ConanFile):
         self.requires("cpprestsdk/2.10.19")
         self.requires("zlib/1.3.1")
         self.requires("websocketpp/0.8.2")
+        self.requires("jwt-cpp/0.7.2")
