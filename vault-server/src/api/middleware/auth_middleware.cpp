@@ -3,8 +3,8 @@
 
 #include <nlohmann/json.hpp>
 
-#include <jwt-cpp/traits/nlohmann-json/defaults.h>
 #include <jwt-cpp/jwt.h>
+#include <jwt-cpp/traits/nlohmann-json/defaults.h>
 
 #include "common/log/log.h"
 
@@ -196,19 +196,13 @@ void AuthMiddleware::cleanBlacklist()
     std::lock_guard<std::mutex> lock(m_blacklistMutex);
 
     // Удаляем все токены, срок действия которых истек
-    for (auto it = m_blacklist.begin(); it != m_blacklist.end();)
-    {
-        if (it->second < now)
+    std::erase_if(
+        m_blacklist,
+        [now](const auto& item)
         {
-            LOG_DEBUG
-                << "Удаление токена с истекшим сроком действия";
-            it = m_blacklist.erase(it);
+            return item.second < now;
         }
-        else
-        {
-            ++it;
-        }
-    }
+    );
 }
 
 } // namespace server
