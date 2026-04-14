@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ---------------------------------------------------------------------------- #
 option(BUILD_DTO_TESTS "Build tests for data transfer objects" OFF)
 option(BUILD_STORAGE_TESTS "Build tests for storage" ON)
+option(BUILD_API_TESTS "Build tests for rest server" ON)
 option(BUILD_ALL_TESTS "Build all test" OFF)
 # ---------------------------------------------------------------------------- #
 
@@ -20,4 +21,8 @@ endif()
 
 if(BUILD_STORAGE_TESTS OR BUILD_ALL)
     add_subdirectory(storage)
+endif()
+
+if(BUILD_API_TESTS OR BUILD_ALL)
+    add_subdirectory(rest_server)
 endif()
