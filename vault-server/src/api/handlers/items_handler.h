@@ -7,8 +7,6 @@
 #include <cpprest/http_msg.h>
 #include <cpprest/json.h>
 
-namespace farado
-{
 namespace server
 {
 namespace handlers
@@ -123,4 +121,3 @@ private:
 
 } // namespace handlers
 } // namespace server
-} // namespace farado

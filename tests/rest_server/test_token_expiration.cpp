@@ -16,7 +16,7 @@ using namespace web;
 using namespace web::http;
 using namespace web::http::client;
 
-namespace farado::server::test
+namespace server::test
 {
 
 // ============================================================================
@@ -71,4 +71,4 @@ BOOST_FIXTURE_TEST_CASE(test_token_expiration, TestServerFixture)
     }
 }
 
-} // namespace farado::server::test
+} // namespace server::test

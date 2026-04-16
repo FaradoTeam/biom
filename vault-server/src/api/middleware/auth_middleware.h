@@ -7,8 +7,6 @@
 #include <string>
 #include <unordered_map>
 
-namespace farado
-{
 namespace server
 {
 
@@ -133,4 +131,3 @@ private:
 };
 
 } // namespace server
-} // namespace farado

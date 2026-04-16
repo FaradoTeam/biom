@@ -24,7 +24,7 @@ using namespace web;
 using namespace web::http;
 using namespace web::http::client;
 
-namespace farado::server::test
+namespace server::test
 {
 
 // ============================================================================
@@ -702,4 +702,4 @@ BOOST_FIXTURE_TEST_CASE(test_high_load, TestServerFixture)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-} // namespace farado::server::test
+} // namespace server::test
