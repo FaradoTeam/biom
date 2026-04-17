@@ -9,8 +9,6 @@
 
 #include "api/rest_server.h"
 
-namespace farado
-{
 namespace server
 {
 
@@ -98,4 +96,3 @@ void Application::cleanup()
 }
 
 } // namespace server
-} // namespace farado

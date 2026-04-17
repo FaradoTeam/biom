@@ -3,8 +3,6 @@
 #include <memory>
 #include <string>
 
-namespace farado
-{
 namespace server
 {
 
@@ -35,4 +33,3 @@ private:
 };
 
 } // namespace server
-} // namespace farado

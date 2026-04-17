@@ -10,8 +10,6 @@
 
 #include "auth_middleware.h"
 
-namespace farado
-{
 namespace server
 {
 
@@ -206,4 +204,3 @@ void AuthMiddleware::cleanBlacklist()
 }
 
 } // namespace server
-} // namespace farado

@@ -14,8 +14,6 @@
 
 #include "middleware/auth_middleware.h"
 
-namespace farado
-{
 namespace server
 {
 
@@ -182,4 +180,3 @@ private:
 };
 
 } // namespace server
-} // namespace farado

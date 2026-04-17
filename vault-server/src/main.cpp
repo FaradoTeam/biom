@@ -9,7 +9,7 @@
 
 #include "application.h"
 
-std::atomic<farado::server::Application*> applicationPtr { nullptr };
+std::atomic<server::Application*> applicationPtr { nullptr };
 
 void signalHandler(int signal)
 {
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 
     int result = 0;
     {
-        farado::server::Application application;
+        server::Application application;
         applicationPtr.store(&application);
         result = application.run();
     }

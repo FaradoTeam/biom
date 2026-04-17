@@ -23,7 +23,7 @@ using namespace web;
 using namespace web::http;
 using namespace web::http::client;
 
-namespace farado::server::test
+namespace server::test
 {
 
 // ============================================================================
@@ -159,4 +159,4 @@ struct TestServerFixture
     std::shared_ptr<RestServer> m_server; ///< Экземпляр тестируемого сервера
 };
 
-} // namespace farado::server::test
+} // namespace server::test

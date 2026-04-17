@@ -9,8 +9,6 @@
 
 #include "items_handler.h"
 
-namespace farado
-{
 namespace server
 {
 namespace handlers
@@ -313,4 +311,3 @@ void ItemsHandler::sendErrorResponse(
 
 } // namespace handlers
 } // namespace server
-} // namespace farado

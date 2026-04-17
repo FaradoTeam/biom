@@ -8,8 +8,6 @@
 
 #include "auth_handler.h"
 
-namespace farado
-{
 namespace server
 {
 namespace handlers
@@ -285,4 +283,3 @@ void AuthHandler::sendErrorResponse(
 
 } // namespace handlers
 } // namespace server
-} // namespace farado

@@ -8,8 +8,6 @@
 
 #include "../middleware/auth_middleware.h"
 
-namespace farado
-{
 namespace server
 {
 namespace handlers
@@ -96,4 +94,3 @@ private:
 
 } // namespace handlers
 } // namespace server
-} // namespace farado

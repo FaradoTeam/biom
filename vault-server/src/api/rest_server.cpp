@@ -12,8 +12,6 @@
 
 #include "rest_server.h"
 
-namespace farado
-{
 namespace server
 {
 
@@ -399,4 +397,3 @@ bool RestServer::matchRoute(
 }
 
 } // namespace server
-} // namespace farado

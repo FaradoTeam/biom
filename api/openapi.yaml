@@ -24,6 +24,7 @@ components:
     # =====================================================
     User:
       type: object
+      required: [login]
       properties:
         id: { type: integer, description: Уникальный идентификатор пользователя }
         login: { type: string, description: Логин пользователя (уникальный) }
@@ -38,24 +39,28 @@ components:
         isHidden: { type: boolean, description: Флаг скрытого пользователя (не отображается в списках) }
     Team:
       type: object
+      required: [caption]
       properties:
         id: { type: integer, description: Уникальный идентификатор команды }
         caption: { type: string, description: Название команды }
         description: { type: string, description: Описание команды }
     Role:
       type: object
+      required: [caption]
       properties:
         id: { type: integer, description: Уникальный идентификатор роли }
         caption: { type: string, description: Название роли }
         description: { type: string, description: Описание роли }
     Rule:
       type: object
+      required: [roleId]
       properties:
         id: { type: integer, description: Уникальный идентификатор правила }
         roleId: { type: integer, description: Идентификатор роли }
         isRootProjectCreator: { type: boolean, description: Право на создание корневых проектов }
     RuleProject:
       type: object
+      required: [ruleId, projectId]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         ruleId: { type: integer, description: Идентификатор правила }
@@ -67,6 +72,7 @@ components:
         isBoardEditor: { type: boolean, description: Право на создание и изменение досок }
     RuleItemType:
       type: object
+      required: [ruleId, itemTypeId]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         ruleId: { type: integer, description: Идентификатор правила }
@@ -75,6 +81,7 @@ components:
         isWriter: { type: boolean, description: Право на создание и изменение элементов данного типа }
     RuleState:
       type: object
+      required: [ruleId, stateId]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         ruleId: { type: integer, description: Идентификатор правила }
@@ -82,6 +89,7 @@ components:
         isStateAllowed: { type: boolean, description: Разрешение на перевод элемента в это состояние }
     UserTeamRole:
       type: object
+      required: [userId, teamId, roleId]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         userId: { type: integer, description: Идентификатор пользователя }
@@ -93,6 +101,7 @@ components:
     # =====================================================
     Project:
       type: object
+      required: [caption]
       properties:
         id: { type: integer, description: Уникальный идентификатор проекта }
         parentId: { type: integer, nullable: true, description: Идентификатор родительского проекта (null для корневых) }
@@ -103,6 +112,7 @@ components:
         isArchive: { type: boolean, description: Флаг архивации (мягкое удаление) }
     Phase:
       type: object
+      required: [projectId, caption]
       properties:
         id: { type: integer, description: Уникальный идентификатор фазы }
         projectId: { type: integer, description: Идентификатор проекта }
@@ -113,6 +123,7 @@ components:
         isArchive: { type: boolean, description: Флаг архивации фазы }
     ProjectTeam:
       type: object
+      required: [projectId, teamId]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         projectId: { type: integer, description: Идентификатор проекта }
@@ -123,12 +134,14 @@ components:
     # =====================================================
     Workflow:
       type: object
+      required: [caption]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         caption: { type: string, description: Название рабочего процесса }
         description: { type: string, description: Описание рабочего процесса }
     State:
       type: object
+      required: [workflowId, caption]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         workflowId: { type: integer, description: Идентификатор рабочего процесса }
@@ -140,6 +153,7 @@ components:
         isQueue: { type: boolean, description: Флаг очереди (для определения активных работ) }
     Edge:
       type: object
+      required: [beginStateId, endStateId]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         beginStateId: { type: integer, description: Начальное состояние }
@@ -150,6 +164,7 @@ components:
     # =====================================================
     ItemType:
       type: object
+      required: [workflowId, defaultStateId, caption, kind]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         workflowId: { type: integer, description: Идентификатор рабочего процесса }
@@ -159,6 +174,7 @@ components:
         defaultContent: { type: string, description: Содержимое по умолчанию (шаблон для создания новых item) }
     FieldType:
       type: object
+      required: [itemTypeId, caption, valueType]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         itemTypeId: { type: integer, description: Идентификатор типа элемента }
@@ -168,6 +184,7 @@ components:
         isBoardVisible: { type: boolean, description: Отображать поле на канбан-доске }
     FieldTypePossibleValue:
       type: object
+      required: [fieldTypeId, value]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         fieldTypeId: { type: integer, description: Идентификатор типа поля }
@@ -178,6 +195,7 @@ components:
     # =====================================================
     Item:
       type: object
+      required: [itemTypeId, stateId, phaseId, caption]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         itemTypeId: { type: integer, description: Идентификатор типа элемента }
@@ -189,6 +207,7 @@ components:
         isDeleted: { type: boolean, description: Флаг удаления (мягкое удаление) }
     ItemField:
       type: object
+      required: [itemId, fieldTypeId]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         itemId: { type: integer, description: Идентификатор элемента }
@@ -196,6 +215,7 @@ components:
         value: { type: string, description: Значение поля (в сериализованном виде) }
     ItemHistory:
       type: object
+      required: [itemId, userId, timestamp]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         itemId: { type: integer, description: Идентификатор элемента }
@@ -204,6 +224,7 @@ components:
         diff: { type: string, description: JSON с изменениями (diff) }
     ItemUserState:
       type: object
+      required: [itemId, userId, stateId, timestamp]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         itemId: { type: integer, description: Идентификатор элемента }
@@ -217,6 +238,7 @@ components:
     # =====================================================
     LinkType:
       type: object
+      required: [sourceItemTypeId, destinationItemTypeId, isBidirectional, caption]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         sourceItemTypeId: { type: integer, description: Исходный тип элемента }
@@ -225,6 +247,7 @@ components:
         caption: { type: string, description: Название типа связи }
     ItemLink:
       type: object
+      required: [linkTypeId, sourceItemId, destinationItemId]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         linkTypeId: { type: integer, description: Идентификатор типа связи }
@@ -236,6 +259,7 @@ components:
     # =====================================================
     Document:
       type: object
+      required: [caption]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         caption: { type: string, description: Название документа }
@@ -247,6 +271,7 @@ components:
         uploadedAt: { type: string, format: date-time, description: Время загрузки }
         uploadedByUserId: { type: integer, description: Идентификатор пользователя, загрузившего файл }
     ItemDocument:
+      required: [itemId, documentId]
       type: object
       properties:
         id: { type: integer, description: Уникальный идентификатор }
@@ -254,6 +279,7 @@ components:
         documentId: { type: integer, description: Идентификатор документа }
     Comment:
       type: object
+      required: [userId, itemId, content]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         userId: { type: integer, description: Идентификатор автора }
@@ -262,6 +288,7 @@ components:
         content: { type: string, description: Текст комментария }
     CommentDocument:
       type: object
+      required: [commentId, documentId]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         commentId: { type: integer, description: Идентификатор комментария }
@@ -272,15 +299,17 @@ components:
     # =====================================================
     Board:
       type: object
+      required: [workflowId, caption]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         workflowId: { type: integer, description: Идентификатор рабочего процесса }
         projectId: { type: integer, description: Идентификатор проекта }
-        phaseId: { type: integer, nullable: true, description: Идентификатор фазы (опционально) }
+        phaseId: { type: integer, nullable: true, description: Идентификатор фазы }
         caption: { type: string, description: Название доски }
         description: { type: string, description: Описание доски }
     BoardColumn:
       type: object
+      required: [boardId, stateId, orderNumber]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         boardId: { type: integer, description: Идентификатор доски }
@@ -293,6 +322,7 @@ components:
     # =====================================================
     StandardDay:
       type: object
+      required: [weekDayNumber, weekOrder, isWorkDay]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         weekDayNumber: { type: integer, minimum: 0, maximum: 6, description: Номер дня недели (0-6) }
@@ -303,6 +333,7 @@ components:
         breakDuration: { type: integer, description: Длительность перерыва в минутах }
     SpecialDay:
       type: object
+      required: [date]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         date: { type: string, format: date, description: Дата (уникальная) }
@@ -312,6 +343,7 @@ components:
         breakDuration: { type: integer, description: Длительность перерыва в минутах }
     UserDay:
       type: object
+      required: [userId, date]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         userId: { type: integer, description: Идентификатор пользователя }
@@ -327,6 +359,7 @@ components:
     # =====================================================
     PrivateMessage:
       type: object
+      required: [senderUserId, receiverUserId, creationTimestamp, content]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         senderUserId: { type: integer, description: Идентификатор отправителя }
@@ -336,6 +369,7 @@ components:
         isViewed: { type: boolean, description: Флаг прочтения }
     TeamMessage:
       type: object
+      required: [senderUserId, teamId, creationTimestamp, content]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         senderUserId: { type: integer, description: Идентификатор отправителя }
@@ -344,6 +378,7 @@ components:
         content: { type: string, description: Текст сообщения }
     UserNotification:
       type: object
+      required: [userId, itemId]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         userId: { type: integer, description: Идентификатор пользователя }
@@ -354,6 +389,7 @@ components:
     # =====================================================
     UserAction:
       type: object
+      required: [userId, timestamp, caption]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         userId: { type: integer, description: Идентификатор пользователя }
@@ -362,6 +398,7 @@ components:
         description: { type: string, description: Подробное описание (контекст) }
     UserTodo:
       type: object
+      required: [userId, isDone, caption]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         userId: { type: integer, description: Идентификатор пользователя }
@@ -369,6 +406,7 @@ components:
         caption: { type: string, description: Текст задачи }
       ItemPlanning:
       type: object
+      required: [itemId, userId, startDate, endDate]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         itemId: { type: integer, description: Идентификатор элемента }
@@ -381,6 +419,7 @@ components:
     # =====================================================
     RoleMenuItem:
       type: object
+      required: [roleId, caption, link]
       properties:
         id: { type: integer, description: Уникальный идентификатор }
         roleId: { type: integer, description: Идентификатор роли }
@@ -393,6 +432,7 @@ components:
     # =====================================================
     ErrorResponse:
       type: object
+      required: [code]
       properties:
         code: { type: integer, description: Код ошибки HTTP }
         message: { type: string, description: Сообщение об ошибке }
