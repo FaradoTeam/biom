@@ -7,14 +7,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 enable_testing()
 
-if(BUILD_DTO_TESTS OR BUILD_ALL)
+if(BUILD_DTO_TESTS OR BUILD_ALL_TESTS)
     add_subdirectory(dto)
 endif()
 
-if(BUILD_STORAGE_TESTS OR BUILD_ALL)
+if(BUILD_STORAGE_TESTS OR BUILD_ALL_TESTS)
     add_subdirectory(storage)
 endif()
 
-if(BUILD_API_TESTS OR BUILD_ALL)
+if(BUILD_API_TESTS OR BUILD_ALL_TESTS)
     add_subdirectory(rest_server)
 endif()
