@@ -1,15 +1,19 @@
-// services/auth_service.cpp
-#include "auth_service.h"
-
 #include <algorithm>
 #include <cctype>
 #include <iomanip>
 #include <sstream>
 
+#include <openssl/evp.h>
+
 #include "common/log/log.h"
 
-// Используем EVP API вместо устаревшего SHA256_*
-#include <openssl/evp.h>
+#include "auth_service.h"
+
+namespace
+{
+constexpr int DEFAULT_TOKEN_EXPIRY = 3600; // 1 час
+constexpr size_t MIN_PASSWORD_LENGTH = 8;
+} // namespace
 
 namespace server
 {
@@ -18,7 +22,7 @@ namespace services
 
 AuthService::AuthService(
     std::shared_ptr<repositories::IUserRepository> userRepo,
-    std::shared_ptr<AuthMiddleware> authMiddleware
+    std::shared_ptr<IAuthMiddleware> authMiddleware
 )
     : m_userRepo(std::move(userRepo))
     , m_authMiddleware(std::move(authMiddleware))
@@ -31,61 +35,6 @@ AuthService::AuthService(
     {
         throw std::runtime_error("AuthMiddleware cannot be null");
     }
-}
-
-std::string AuthService::hashPassword(const std::string& password)
-{
-    // Используем современный EVP API вместо устаревшего SHA256_*
-    unsigned char hash[EVP_MAX_MD_SIZE];
-    unsigned int hashLen = 0;
-
-    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
-    if (!ctx)
-    {
-        throw std::runtime_error("Failed to create EVP_MD_CTX");
-    }
-
-    EVP_DigestInit_ex(ctx, EVP_sha256(), nullptr);
-    EVP_DigestUpdate(ctx, password.c_str(), password.length());
-    EVP_DigestFinal_ex(ctx, hash, &hashLen);
-    EVP_MD_CTX_free(ctx);
-
-    std::stringstream ss;
-    for (unsigned int i = 0; i < hashLen; i++)
-    {
-        ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(hash[i]);
-    }
-    return ss.str();
-}
-
-bool AuthService::checkPassword(const std::string& password, const std::string& hash)
-{
-    return hashPassword(password) == hash;
-}
-
-bool AuthService::validatePasswordStrength(const std::string& password)
-{
-    if (password.length() < MIN_PASSWORD_LENGTH)
-    {
-        return false;
-    }
-
-    bool hasUpper = false;
-    bool hasLower = false;
-    bool hasDigit = false;
-
-    for (char c : password)
-    {
-        if (std::isupper(static_cast<unsigned char>(c)))
-            hasUpper = true;
-        if (std::islower(static_cast<unsigned char>(c)))
-            hasLower = true;
-        if (std::isdigit(static_cast<unsigned char>(c)))
-            hasDigit = true;
-    }
-
-    // Требуем хотя бы одну заглавную, одну строчную и одну цифру
-    return hasUpper && hasLower && hasDigit;
 }
 
 AuthResult AuthService::login(const std::string& login, const std::string& password)
@@ -140,14 +89,15 @@ AuthResult AuthService::login(const std::string& login, const std::string& passw
     }
 
     // 5. Генерируем JWT-токен
-    std::string userIdStr = std::to_string(user.id.value());
+    const std::string userIdStr = std::to_string(user.id.value());
     result.accessToken = m_authMiddleware->generateToken(userIdStr, DEFAULT_TOKEN_EXPIRY);
     result.success = true;
     result.tokenType = "Bearer";
     result.expiresIn = DEFAULT_TOKEN_EXPIRY;
 
-    LOG_INFO << "Пользователь успешно вошел в систему: " << login
-             << " (id=" << user.id.value() << ")";
+    LOG_INFO
+        << "Пользователь успешно вошел в систему: " << login
+        << " (id=" << user.id.value() << ")";
 
     return result;
 }
@@ -195,7 +145,9 @@ ChangePasswordResult AuthService::changePassword(
     {
         result.errorMessage = "Invalid old password";
         result.errorCode = 401;
-        LOG_WARN << "Неверный старый пароль при смене пароля для пользователя id=" << userId;
+        LOG_WARN
+            << "Неверный старый пароль при смене пароля для пользователя id="
+            << userId;
         return result;
     }
 
@@ -210,19 +162,21 @@ ChangePasswordResult AuthService::changePassword(
     // 5. Валидируем сложность нового пароля
     if (!validatePasswordStrength(newPassword))
     {
-        result.errorMessage = "Password must be at least 8 characters long and contain "
-                              "uppercase, lowercase and digit";
+        result.errorMessage = "Password must be at least 8 characters long and "
+                              "contain uppercase, lowercase and digit";
         result.errorCode = 400;
         return result;
     }
 
     // 6. Хешируем и сохраняем новый пароль
-    std::string newHash = hashPassword(newPassword);
+    const std::string newHash = hashPassword(newPassword);
     if (!m_userRepo->updatePassword(userId, newHash))
     {
         result.errorMessage = "Failed to update password";
         result.errorCode = 500;
-        LOG_ERROR << "Не удалось обновить пароль для пользователя id=" << userId;
+        LOG_ERROR
+            << "Не удалось обновить пароль для пользователя id="
+            << userId;
         return result;
     }
 
@@ -237,7 +191,7 @@ ChangePasswordResult AuthService::changePassword(
 
 bool AuthService::verifyPassword(int64_t userId, const std::string& password)
 {
-    std::string storedHash = getPasswordHash(userId);
+    std::string storedHash = passwordHash(userId);
     if (storedHash.empty())
     {
         LOG_WARN << "Не найден хеш пароля для пользователя id=" << userId;
@@ -246,9 +200,69 @@ bool AuthService::verifyPassword(int64_t userId, const std::string& password)
     return checkPassword(password, storedHash);
 }
 
-std::string AuthService::getPasswordHash(int64_t userId)
+std::string AuthService::passwordHash(int64_t userId)
 {
     return m_userRepo->getPasswordHash(userId);
+}
+
+std::string AuthService::hashPassword(const std::string& password)
+{
+    // Используем современный EVP API вместо устаревшего SHA256_*
+    unsigned char hash[EVP_MAX_MD_SIZE];
+    unsigned int hashLen = 0;
+
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    if (!ctx)
+    {
+        throw std::runtime_error("Failed to create EVP_MD_CTX");
+    }
+
+    EVP_DigestInit_ex(ctx, EVP_sha256(), nullptr);
+    EVP_DigestUpdate(ctx, password.c_str(), password.length());
+    EVP_DigestFinal_ex(ctx, hash, &hashLen);
+    EVP_MD_CTX_free(ctx);
+
+    std::stringstream ss;
+    for (unsigned int i = 0; i < hashLen; ++i)
+    {
+        ss
+            << std::hex << std::setw(2) << std::setfill('0')
+            << static_cast<int>(hash[i]);
+    }
+    return ss.str();
+}
+
+bool AuthService::checkPassword(
+    const std::string& password,
+    const std::string& hash
+)
+{
+    return hashPassword(password) == hash;
+}
+
+bool AuthService::validatePasswordStrength(const std::string& password)
+{
+    if (password.length() < MIN_PASSWORD_LENGTH)
+    {
+        return false;
+    }
+
+    bool hasUpper = false;
+    bool hasLower = false;
+    bool hasDigit = false;
+
+    for (char character : password)
+    {
+        if (std::isupper(static_cast<unsigned char>(character)))
+            hasUpper = true;
+        if (std::islower(static_cast<unsigned char>(character)))
+            hasLower = true;
+        if (std::isdigit(static_cast<unsigned char>(character)))
+            hasDigit = true;
+    }
+
+    // Требуем хотя бы одну заглавную, одну строчную и одну цифру
+    return hasUpper && hasLower && hasDigit;
 }
 
 } // namespace services

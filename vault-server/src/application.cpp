@@ -6,11 +6,15 @@
 #include "common/config/config.h"
 #include "common/log/log.h"
 
-#include "api/rest_server.h"
 #include "application.h"
 
-#include "logic/auth_service.h"
+#include "api/middleware/impl/auth_middleware.h"
+#include "api/rest_server.h"
+
+#include "logic/impl/auth_service.h"
+
 #include "repo/sqlite/sqlite_user_repository.h"
+
 #include "storage/database_factory.h"
 
 namespace server
@@ -100,9 +104,10 @@ int Application::run()
         return EXIT_FAILURE;
     }
 
-    LOG_INFO << "Приложение запущено на "
-             << CONFIG.network.apiHost << ":" << CONFIG.network.apiPort
-             << ". Нажмите Ctrl+C для остановки.";
+    LOG_INFO
+        << "Приложение запущено на "
+        << CONFIG.network.apiHost << ":" << CONFIG.network.apiPort
+        << ". Нажмите Ctrl+C для остановки.";
 
     while (m_isRunning)
     {

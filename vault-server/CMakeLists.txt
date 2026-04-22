@@ -9,34 +9,33 @@ find_package(jwt-cpp REQUIRED)
 find_package(SQLite3 REQUIRED)
 
 set(SERVER_SOURCES
+    # Application
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/application.cpp
+    # API Layer
     ${CMAKE_CURRENT_SOURCE_DIR}/src/api/rest_server.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/middleware/auth_middleware.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/middleware/impl/auth_middleware.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/api/handlers/items_handler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/api/handlers/auth_handler.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/logic/auth_service.cpp
+    # Logic Layer
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/logic/impl/auth_service.cpp
+    # Repo Layer
     ${CMAKE_CURRENT_SOURCE_DIR}/src/repo/sqlite/sqlite_user_repository.cpp
+    # Storage Layer
     ${CMAKE_CURRENT_SOURCE_DIR}/src/storage/database_factory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/storage/sqlite/sqlite_connection.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/storage/sqlite/sqlite_database.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/storage/sqlite/sqlite_result_set.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/storage/sqlite/sqlite_statement.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/storage/sqlite/sqlite_transaction.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-)
-
-set(SERVER_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/application.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/rest_server.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/middleware/auth_middleware.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/handlers/items_handler.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/handlers/auth_handler.h
 )
 
 set(COMMON_SOURCES
+    # Logger
     ${CMAKE_CURRENT_SOURCE_DIR}/../common/log/log.cpp
+    # Config
     ${CMAKE_CURRENT_SOURCE_DIR}/../common/config/config.cpp
+    # DTO
     ${CMAKE_CURRENT_SOURCE_DIR}/../common/dto/auth_request.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../common/dto/auth_response.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../common/dto/board.cpp
@@ -82,17 +81,10 @@ set(COMMON_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../common/dto/workflow.cpp
 )
 
-set(COMMON_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/../common/log/log.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../common/config/config.h
-)
-
 add_executable(
     ${PROJECT_NAME}
     ${SERVER_SOURCES}
-    ${SERVER_HEADERS}
     ${COMMON_SOURCES}
-    ${COMMON_HEADERS}
 )
 
 target_link_libraries(

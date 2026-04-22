@@ -6,9 +6,9 @@
 #include <cpprest/http_msg.h>
 #include <cpprest/json.h>
 
-#include "api/middleware/auth_middleware.h"
+#include "api/middleware/iauth_middleware.h"
 
-#include "logic/auth_service.h"
+#include "logic/iauth_service.h"
 
 namespace server
 {
@@ -30,8 +30,8 @@ public:
      * @param authMiddleware Middleware для работы с JWT-токенами
      */
     explicit AuthHandler(
-        std::shared_ptr<services::AuthService> authService,
-        std::shared_ptr<AuthMiddleware> authMiddleware
+        std::shared_ptr<services::IAuthService> authService,
+        std::shared_ptr<IAuthMiddleware> authMiddleware
     );
 
     /**
@@ -82,8 +82,8 @@ private:
     );
 
 private:
-    std::shared_ptr<services::AuthService> m_authService;
-    std::shared_ptr<AuthMiddleware> m_authMiddleware;
+    std::shared_ptr<services::IAuthService> m_authService;
+    std::shared_ptr<IAuthMiddleware> m_authMiddleware;
 };
 
 } // namespace handlers

@@ -10,7 +10,7 @@
 #include "api/handlers/auth_handler.h"
 #include "api/handlers/items_handler.h"
 
-#include "logic/auth_service.h"
+#include "logic/iauth_service.h"
 
 #include "rest_server.h"
 
@@ -92,12 +92,12 @@ void RestServer::stop()
     LOG_INFO << "Сервер REST остановлен";
 }
 
-void RestServer::setAuthMiddleware(std::shared_ptr<AuthMiddleware> middleware)
+void RestServer::setAuthMiddleware(std::shared_ptr<IAuthMiddleware> middleware)
 {
     m_authMiddleware = middleware;
 }
 
-void RestServer::setAuthService(std::shared_ptr<services::AuthService> authService)
+void RestServer::setAuthService(std::shared_ptr<services::IAuthService> authService)
 {
     m_authService = authService;
 }

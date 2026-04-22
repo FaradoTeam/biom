@@ -7,6 +7,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "api/middleware/iauth_middleware.h"
+
 namespace server
 {
 
@@ -32,7 +34,7 @@ struct JWTToken
  * - Аннулирования токенов (черный список)
  * - Извлечения Bearer-токенов из заголовков
  */
-class AuthMiddleware final
+class AuthMiddleware final : public IAuthMiddleware
 {
 public:
     /**
@@ -40,7 +42,6 @@ public:
      * @param secretKey Секретный ключ для подписи JWT-токенов (HS256)
      */
     explicit AuthMiddleware(const std::string& secretKey);
-    ~AuthMiddleware() = default;
 
     AuthMiddleware(const AuthMiddleware&) = delete;
     AuthMiddleware& operator=(const AuthMiddleware&) = delete;
@@ -59,7 +60,10 @@ public:
      * @param userId Сюда будет записан user_id из токена в случае успеха
      * @return true если токен присутствует, не аннулирован и прошёл верификацию
      */
-    bool validateRequest(const std::string& authHeader, std::string& userId);
+    bool validateRequest(
+        const std::string& authHeader,
+        std::string& userId
+    ) override;
 
     /**
      * @brief Генерирует новый JWT-токен для пользователя.
@@ -71,7 +75,7 @@ public:
     std::string generateToken(
         const std::string& userId,
         int expiresInSeconds = 3600
-    );
+    ) override;
 
     /**
      * @brief Аннулирует токен (добавляет в чёрный список).
@@ -80,7 +84,7 @@ public:
      *
      * @param token Токен для аннулирования
      */
-    void invalidateToken(const std::string& token);
+    void invalidateToken(const std::string& token) override;
 
     /**
      * @brief Проверяет, не был ли токен аннулирован.
@@ -88,7 +92,7 @@ public:
      * @param token Токен для проверки
      * @return true если токен находится в черном списке
      */
-    bool isTokenInvalidated(const std::string& token);
+    bool isTokenInvalidated(const std::string& token) override;
 
 private:
     /**

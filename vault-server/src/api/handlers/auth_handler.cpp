@@ -4,10 +4,12 @@
 #include <cpprest/http_msg.h>
 #include <cpprest/json.h>
 
+#include "common/log/log.h"
+
 #include "common/dto/auth_request.h"
 #include "common/dto/auth_response.h"
 #include "common/dto/change_password_request.h"
-#include "common/log/log.h"
+
 
 #include "auth_handler.h"
 
@@ -17,8 +19,8 @@ namespace handlers
 {
 
 AuthHandler::AuthHandler(
-    std::shared_ptr<services::AuthService> authService,
-    std::shared_ptr<AuthMiddleware> authMiddleware
+    std::shared_ptr<services::IAuthService> authService,
+    std::shared_ptr<IAuthMiddleware> authMiddleware
 )
     : m_authService(std::move(authService))
     , m_authMiddleware(std::move(authMiddleware))
