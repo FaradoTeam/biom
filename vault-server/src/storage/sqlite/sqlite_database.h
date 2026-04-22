@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "idatabase.h"
+#include "storage/idatabase.h"
 
 namespace db
 {
