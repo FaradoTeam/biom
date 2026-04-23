@@ -4,9 +4,7 @@
 #include <functional>
 #include <map>
 #include <memory>
-#include <regex>
 #include <string>
-#include <thread>
 #include <vector>
 
 #include <cpprest/http_listener.h>

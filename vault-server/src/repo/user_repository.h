@@ -1,9 +1,7 @@
 #pragma once
 
-#include <memory>
 #include <optional>
 #include <string>
-#include <vector>
 
 #include "common/dto/user.h"
 
