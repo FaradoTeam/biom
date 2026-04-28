@@ -27,17 +27,17 @@ nlohmann::json RuleState::toJson() const
     // Идентификатор правила
     if (ruleId.has_value())
     {
-        result["rule_id"] = ruleId.value();
+        result["ruleId"] = ruleId.value();
     }
     // Идентификатор целевого состояния
     if (stateId.has_value())
     {
-        result["state_id"] = stateId.value();
+        result["stateId"] = stateId.value();
     }
     // Разрешение на перевод элемента в это состояние
     if (isStateAllowed.has_value())
     {
-        result["is_state_allowed"] = isStateAllowed.value();
+        result["isStateAllowed"] = isStateAllowed.value();
     }
 
     return result;
@@ -64,11 +64,11 @@ bool RuleState::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор правила
-    if (json.contains("rule_id") && !json["rule_id"].is_null())
+    if (json.contains("ruleId") && !json["ruleId"].is_null())
     {
         try
         {
-            ruleId = json["rule_id"].get<int64_t>();
+            ruleId = json["ruleId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -80,11 +80,11 @@ bool RuleState::fromJson(const nlohmann::json& json)
         ruleId = std::nullopt;
     }
     // Идентификатор целевого состояния
-    if (json.contains("state_id") && !json["state_id"].is_null())
+    if (json.contains("stateId") && !json["stateId"].is_null())
     {
         try
         {
-            stateId = json["state_id"].get<int64_t>();
+            stateId = json["stateId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -96,11 +96,11 @@ bool RuleState::fromJson(const nlohmann::json& json)
         stateId = std::nullopt;
     }
     // Разрешение на перевод элемента в это состояние
-    if (json.contains("is_state_allowed") && !json["is_state_allowed"].is_null())
+    if (json.contains("isStateAllowed") && !json["isStateAllowed"].is_null())
     {
         try
         {
-            isStateAllowed = json["is_state_allowed"].get<bool>();
+            isStateAllowed = json["isStateAllowed"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -135,11 +135,11 @@ std::string RuleState::validationError() const
 {
     if (!ruleId.has_value())
     {
-        return "Поле «rule_id» является обязательным для заполнения";
+        return "Поле «ruleId» является обязательным для заполнения";
     }
     if (!stateId.has_value())
     {
-        return "Поле «state_id» является обязательным для заполнения";
+        return "Поле «stateId» является обязательным для заполнения";
     }
 
 

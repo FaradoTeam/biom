@@ -27,12 +27,12 @@ nlohmann::json Edge::toJson() const
     // Начальное состояние
     if (beginStateId.has_value())
     {
-        result["begin_state_id"] = beginStateId.value();
+        result["beginStateId"] = beginStateId.value();
     }
     // Конечное состояние
     if (endStateId.has_value())
     {
-        result["end_state_id"] = endStateId.value();
+        result["endStateId"] = endStateId.value();
     }
 
     return result;
@@ -59,11 +59,11 @@ bool Edge::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Начальное состояние
-    if (json.contains("begin_state_id") && !json["begin_state_id"].is_null())
+    if (json.contains("beginStateId") && !json["beginStateId"].is_null())
     {
         try
         {
-            beginStateId = json["begin_state_id"].get<int64_t>();
+            beginStateId = json["beginStateId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -75,11 +75,11 @@ bool Edge::fromJson(const nlohmann::json& json)
         beginStateId = std::nullopt;
     }
     // Конечное состояние
-    if (json.contains("end_state_id") && !json["end_state_id"].is_null())
+    if (json.contains("endStateId") && !json["endStateId"].is_null())
     {
         try
         {
-            endStateId = json["end_state_id"].get<int64_t>();
+            endStateId = json["endStateId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -114,11 +114,11 @@ std::string Edge::validationError() const
 {
     if (!beginStateId.has_value())
     {
-        return "Поле «begin_state_id» является обязательным для заполнения";
+        return "Поле «beginStateId» является обязательным для заполнения";
     }
     if (!endStateId.has_value())
     {
-        return "Поле «end_state_id» является обязательным для заполнения";
+        return "Поле «endStateId» является обязательным для заполнения";
     }
 
 

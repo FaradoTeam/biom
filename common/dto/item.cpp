@@ -27,22 +27,22 @@ nlohmann::json Item::toJson() const
     // Идентификатор типа элемента
     if (itemTypeId.has_value())
     {
-        result["item_type_id"] = itemTypeId.value();
+        result["itemTypeId"] = itemTypeId.value();
     }
     // Идентификатор родительского элемента
     if (parentId.has_value())
     {
-        result["parent_id"] = parentId.value();
+        result["parentId"] = parentId.value();
     }
     // Идентификатор текущего состояния
     if (stateId.has_value())
     {
-        result["state_id"] = stateId.value();
+        result["stateId"] = stateId.value();
     }
     // Идентификатор фазы
     if (phaseId.has_value())
     {
-        result["phase_id"] = phaseId.value();
+        result["phaseId"] = phaseId.value();
     }
     // Название элемента
     if (caption.has_value())
@@ -57,7 +57,7 @@ nlohmann::json Item::toJson() const
     // Флаг удаления (мягкое удаление)
     if (isDeleted.has_value())
     {
-        result["is_deleted"] = isDeleted.value();
+        result["isDeleted"] = isDeleted.value();
     }
 
     return result;
@@ -84,11 +84,11 @@ bool Item::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор типа элемента
-    if (json.contains("item_type_id") && !json["item_type_id"].is_null())
+    if (json.contains("itemTypeId") && !json["itemTypeId"].is_null())
     {
         try
         {
-            itemTypeId = json["item_type_id"].get<int64_t>();
+            itemTypeId = json["itemTypeId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -100,11 +100,11 @@ bool Item::fromJson(const nlohmann::json& json)
         itemTypeId = std::nullopt;
     }
     // Идентификатор родительского элемента
-    if (json.contains("parent_id") && !json["parent_id"].is_null())
+    if (json.contains("parentId") && !json["parentId"].is_null())
     {
         try
         {
-            parentId = json["parent_id"].get<int64_t>();
+            parentId = json["parentId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -116,11 +116,11 @@ bool Item::fromJson(const nlohmann::json& json)
         parentId = std::nullopt;
     }
     // Идентификатор текущего состояния
-    if (json.contains("state_id") && !json["state_id"].is_null())
+    if (json.contains("stateId") && !json["stateId"].is_null())
     {
         try
         {
-            stateId = json["state_id"].get<int64_t>();
+            stateId = json["stateId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -132,11 +132,11 @@ bool Item::fromJson(const nlohmann::json& json)
         stateId = std::nullopt;
     }
     // Идентификатор фазы
-    if (json.contains("phase_id") && !json["phase_id"].is_null())
+    if (json.contains("phaseId") && !json["phaseId"].is_null())
     {
         try
         {
-            phaseId = json["phase_id"].get<int64_t>();
+            phaseId = json["phaseId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -180,11 +180,11 @@ bool Item::fromJson(const nlohmann::json& json)
         content = std::nullopt;
     }
     // Флаг удаления (мягкое удаление)
-    if (json.contains("is_deleted") && !json["is_deleted"].is_null())
+    if (json.contains("isDeleted") && !json["isDeleted"].is_null())
     {
         try
         {
-            isDeleted = json["is_deleted"].get<bool>();
+            isDeleted = json["isDeleted"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -231,15 +231,15 @@ std::string Item::validationError() const
 {
     if (!itemTypeId.has_value())
     {
-        return "Поле «item_type_id» является обязательным для заполнения";
+        return "Поле «itemTypeId» является обязательным для заполнения";
     }
     if (!stateId.has_value())
     {
-        return "Поле «state_id» является обязательным для заполнения";
+        return "Поле «stateId» является обязательным для заполнения";
     }
     if (!phaseId.has_value())
     {
-        return "Поле «phase_id» является обязательным для заполнения";
+        return "Поле «phaseId» является обязательным для заполнения";
     }
     if (!caption.has_value())
     {

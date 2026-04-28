@@ -27,12 +27,12 @@ nlohmann::json ItemField::toJson() const
     // Идентификатор элемента
     if (itemId.has_value())
     {
-        result["item_id"] = itemId.value();
+        result["itemId"] = itemId.value();
     }
     // Идентификатор типа поля
     if (fieldTypeId.has_value())
     {
-        result["field_type_id"] = fieldTypeId.value();
+        result["fieldTypeId"] = fieldTypeId.value();
     }
     // Значение поля (в сериализованном виде)
     if (value.has_value())
@@ -64,11 +64,11 @@ bool ItemField::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор элемента
-    if (json.contains("item_id") && !json["item_id"].is_null())
+    if (json.contains("itemId") && !json["itemId"].is_null())
     {
         try
         {
-            itemId = json["item_id"].get<int64_t>();
+            itemId = json["itemId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -80,11 +80,11 @@ bool ItemField::fromJson(const nlohmann::json& json)
         itemId = std::nullopt;
     }
     // Идентификатор типа поля
-    if (json.contains("field_type_id") && !json["field_type_id"].is_null())
+    if (json.contains("fieldTypeId") && !json["fieldTypeId"].is_null())
     {
         try
         {
-            fieldTypeId = json["field_type_id"].get<int64_t>();
+            fieldTypeId = json["fieldTypeId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -135,11 +135,11 @@ std::string ItemField::validationError() const
 {
     if (!itemId.has_value())
     {
-        return "Поле «item_id» является обязательным для заполнения";
+        return "Поле «itemId» является обязательным для заполнения";
     }
     if (!fieldTypeId.has_value())
     {
-        return "Поле «field_type_id» является обязательным для заполнения";
+        return "Поле «fieldTypeId» является обязательным для заполнения";
     }
 
 

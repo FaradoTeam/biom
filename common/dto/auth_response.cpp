@@ -22,10 +22,10 @@ nlohmann::json AuthResponse::toJson() const
     // accessToken
     if (accessToken.has_value())
     {
-        result["access_token"] = accessToken.value();
+        result["accessToken"] = accessToken.value();
     }
     // tokenType
-    result["token_type"] = tokenType;
+    result["tokenType"] = tokenType;
 
     return result;
 }
@@ -35,11 +35,11 @@ bool AuthResponse::fromJson(const nlohmann::json& json)
     bool success = true;
 
     // accessToken
-    if (json.contains("access_token") && !json["access_token"].is_null())
+    if (json.contains("accessToken") && !json["accessToken"].is_null())
     {
         try
         {
-            accessToken = json["access_token"].get<std::string>();
+            accessToken = json["accessToken"].get<std::string>();
         }
         catch (const std::exception& e)
         {

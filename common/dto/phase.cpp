@@ -27,7 +27,7 @@ nlohmann::json Phase::toJson() const
     // Идентификатор проекта
     if (projectId.has_value())
     {
-        result["project_id"] = projectId.value();
+        result["projectId"] = projectId.value();
     }
     // Название фазы
     if (caption.has_value())
@@ -42,17 +42,17 @@ nlohmann::json Phase::toJson() const
     // Дата начала фазы
     if (beginDate.has_value())
     {
-        result["begin_date"] = timePointToSeconds(beginDate.value());
+        result["beginDate"] = timePointToSeconds(beginDate.value());
     }
     // Дата окончания фазы
     if (endDate.has_value())
     {
-        result["end_date"] = timePointToSeconds(endDate.value());
+        result["endDate"] = timePointToSeconds(endDate.value());
     }
     // Флаг архивации фазы
     if (isArchive.has_value())
     {
-        result["is_archive"] = isArchive.value();
+        result["isArchive"] = isArchive.value();
     }
 
     return result;
@@ -79,11 +79,11 @@ bool Phase::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор проекта
-    if (json.contains("project_id") && !json["project_id"].is_null())
+    if (json.contains("projectId") && !json["projectId"].is_null())
     {
         try
         {
-            projectId = json["project_id"].get<int64_t>();
+            projectId = json["projectId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -127,11 +127,11 @@ bool Phase::fromJson(const nlohmann::json& json)
         description = std::nullopt;
     }
     // Дата начала фазы
-    if (json.contains("begin_date") && !json["begin_date"].is_null())
+    if (json.contains("beginDate") && !json["beginDate"].is_null())
     {
         try
         {
-            auto timestampValue = json["begin_date"].get<int64_t>();
+            auto timestampValue = json["beginDate"].get<int64_t>();
             beginDate = secondsToTimePoint(timestampValue);
         }
         catch (const std::exception& e)
@@ -144,11 +144,11 @@ bool Phase::fromJson(const nlohmann::json& json)
         beginDate = std::nullopt;
     }
     // Дата окончания фазы
-    if (json.contains("end_date") && !json["end_date"].is_null())
+    if (json.contains("endDate") && !json["endDate"].is_null())
     {
         try
         {
-            auto timestampValue = json["end_date"].get<int64_t>();
+            auto timestampValue = json["endDate"].get<int64_t>();
             endDate = secondsToTimePoint(timestampValue);
         }
         catch (const std::exception& e)
@@ -161,11 +161,11 @@ bool Phase::fromJson(const nlohmann::json& json)
         endDate = std::nullopt;
     }
     // Флаг архивации фазы
-    if (json.contains("is_archive") && !json["is_archive"].is_null())
+    if (json.contains("isArchive") && !json["isArchive"].is_null())
     {
         try
         {
-            isArchive = json["is_archive"].get<bool>();
+            isArchive = json["isArchive"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -204,7 +204,7 @@ std::string Phase::validationError() const
 {
     if (!projectId.has_value())
     {
-        return "Поле «project_id» является обязательным для заполнения";
+        return "Поле «projectId» является обязательным для заполнения";
     }
     if (!caption.has_value())
     {

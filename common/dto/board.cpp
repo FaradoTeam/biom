@@ -27,17 +27,17 @@ nlohmann::json Board::toJson() const
     // Идентификатор рабочего процесса
     if (workflowId.has_value())
     {
-        result["workflow_id"] = workflowId.value();
+        result["workflowId"] = workflowId.value();
     }
     // Идентификатор проекта
     if (projectId.has_value())
     {
-        result["project_id"] = projectId.value();
+        result["projectId"] = projectId.value();
     }
     // Идентификатор фазы
     if (phaseId.has_value())
     {
-        result["phase_id"] = phaseId.value();
+        result["phaseId"] = phaseId.value();
     }
     // Название доски
     if (caption.has_value())
@@ -74,11 +74,11 @@ bool Board::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор рабочего процесса
-    if (json.contains("workflow_id") && !json["workflow_id"].is_null())
+    if (json.contains("workflowId") && !json["workflowId"].is_null())
     {
         try
         {
-            workflowId = json["workflow_id"].get<int64_t>();
+            workflowId = json["workflowId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -90,11 +90,11 @@ bool Board::fromJson(const nlohmann::json& json)
         workflowId = std::nullopt;
     }
     // Идентификатор проекта
-    if (json.contains("project_id") && !json["project_id"].is_null())
+    if (json.contains("projectId") && !json["projectId"].is_null())
     {
         try
         {
-            projectId = json["project_id"].get<int64_t>();
+            projectId = json["projectId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -106,11 +106,11 @@ bool Board::fromJson(const nlohmann::json& json)
         projectId = std::nullopt;
     }
     // Идентификатор фазы
-    if (json.contains("phase_id") && !json["phase_id"].is_null())
+    if (json.contains("phaseId") && !json["phaseId"].is_null())
     {
         try
         {
-            phaseId = json["phase_id"].get<int64_t>();
+            phaseId = json["phaseId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -181,7 +181,7 @@ std::string Board::validationError() const
 {
     if (!workflowId.has_value())
     {
-        return "Поле «workflow_id» является обязательным для заполнения";
+        return "Поле «workflowId» является обязательным для заполнения";
     }
     if (!caption.has_value())
     {

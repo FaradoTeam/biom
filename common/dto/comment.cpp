@@ -27,17 +27,17 @@ nlohmann::json Comment::toJson() const
     // Идентификатор автора
     if (userId.has_value())
     {
-        result["user_id"] = userId.value();
+        result["userId"] = userId.value();
     }
     // Идентификатор элемента
     if (itemId.has_value())
     {
-        result["item_id"] = itemId.value();
+        result["itemId"] = itemId.value();
     }
     // Время создания
     if (createdAt.has_value())
     {
-        result["created_at"] = timePointToSeconds(createdAt.value());
+        result["createdAt"] = timePointToSeconds(createdAt.value());
     }
     // Текст комментария
     if (content.has_value())
@@ -69,11 +69,11 @@ bool Comment::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор автора
-    if (json.contains("user_id") && !json["user_id"].is_null())
+    if (json.contains("userId") && !json["userId"].is_null())
     {
         try
         {
-            userId = json["user_id"].get<int64_t>();
+            userId = json["userId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -85,11 +85,11 @@ bool Comment::fromJson(const nlohmann::json& json)
         userId = std::nullopt;
     }
     // Идентификатор элемента
-    if (json.contains("item_id") && !json["item_id"].is_null())
+    if (json.contains("itemId") && !json["itemId"].is_null())
     {
         try
         {
-            itemId = json["item_id"].get<int64_t>();
+            itemId = json["itemId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -101,11 +101,11 @@ bool Comment::fromJson(const nlohmann::json& json)
         itemId = std::nullopt;
     }
     // Время создания
-    if (json.contains("created_at") && !json["created_at"].is_null())
+    if (json.contains("createdAt") && !json["createdAt"].is_null())
     {
         try
         {
-            auto timestampValue = json["created_at"].get<int64_t>();
+            auto timestampValue = json["createdAt"].get<int64_t>();
             createdAt = secondsToTimePoint(timestampValue);
         }
         catch (const std::exception& e)
@@ -165,11 +165,11 @@ std::string Comment::validationError() const
 {
     if (!userId.has_value())
     {
-        return "Поле «user_id» является обязательным для заполнения";
+        return "Поле «userId» является обязательным для заполнения";
     }
     if (!itemId.has_value())
     {
-        return "Поле «item_id» является обязательным для заполнения";
+        return "Поле «itemId» является обязательным для заполнения";
     }
     if (!content.has_value())
     {

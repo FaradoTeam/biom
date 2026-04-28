@@ -1,3 +1,4 @@
+
 #define BOOST_TEST_MODULE BiomeDtoTests
 #include <boost/test/unit_test.hpp>
 

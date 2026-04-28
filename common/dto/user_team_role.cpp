@@ -27,17 +27,17 @@ nlohmann::json UserTeamRole::toJson() const
     // Идентификатор пользователя
     if (userId.has_value())
     {
-        result["user_id"] = userId.value();
+        result["userId"] = userId.value();
     }
     // Идентификатор команды
     if (teamId.has_value())
     {
-        result["team_id"] = teamId.value();
+        result["teamId"] = teamId.value();
     }
     // Идентификатор роли
     if (roleId.has_value())
     {
-        result["role_id"] = roleId.value();
+        result["roleId"] = roleId.value();
     }
 
     return result;
@@ -64,11 +64,11 @@ bool UserTeamRole::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор пользователя
-    if (json.contains("user_id") && !json["user_id"].is_null())
+    if (json.contains("userId") && !json["userId"].is_null())
     {
         try
         {
-            userId = json["user_id"].get<int64_t>();
+            userId = json["userId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -80,11 +80,11 @@ bool UserTeamRole::fromJson(const nlohmann::json& json)
         userId = std::nullopt;
     }
     // Идентификатор команды
-    if (json.contains("team_id") && !json["team_id"].is_null())
+    if (json.contains("teamId") && !json["teamId"].is_null())
     {
         try
         {
-            teamId = json["team_id"].get<int64_t>();
+            teamId = json["teamId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -96,11 +96,11 @@ bool UserTeamRole::fromJson(const nlohmann::json& json)
         teamId = std::nullopt;
     }
     // Идентификатор роли
-    if (json.contains("role_id") && !json["role_id"].is_null())
+    if (json.contains("roleId") && !json["roleId"].is_null())
     {
         try
         {
-            roleId = json["role_id"].get<int64_t>();
+            roleId = json["roleId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -139,15 +139,15 @@ std::string UserTeamRole::validationError() const
 {
     if (!userId.has_value())
     {
-        return "Поле «user_id» является обязательным для заполнения";
+        return "Поле «userId» является обязательным для заполнения";
     }
     if (!teamId.has_value())
     {
-        return "Поле «team_id» является обязательным для заполнения";
+        return "Поле «teamId» является обязательным для заполнения";
     }
     if (!roleId.has_value())
     {
-        return "Поле «role_id» является обязательным для заполнения";
+        return "Поле «roleId» является обязательным для заполнения";
     }
 
 

@@ -35,7 +35,7 @@ nlohmann::json PageResponse::toJson() const
     // totalCount
     if (totalCount.has_value())
     {
-        result["total_count"] = totalCount.value();
+        result["totalCount"] = totalCount.value();
     }
     // page
     if (page.has_value())
@@ -45,7 +45,7 @@ nlohmann::json PageResponse::toJson() const
     // pageSize
     if (pageSize.has_value())
     {
-        result["page_size"] = pageSize.value();
+        result["pageSize"] = pageSize.value();
     }
 
     return result;
@@ -77,11 +77,11 @@ bool PageResponse::fromJson(const nlohmann::json& json)
         items = std::nullopt;
     }
     // totalCount
-    if (json.contains("total_count") && !json["total_count"].is_null())
+    if (json.contains("totalCount") && !json["totalCount"].is_null())
     {
         try
         {
-            totalCount = json["total_count"].get<int64_t>();
+            totalCount = json["totalCount"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -109,11 +109,11 @@ bool PageResponse::fromJson(const nlohmann::json& json)
         page = std::nullopt;
     }
     // pageSize
-    if (json.contains("page_size") && !json["page_size"].is_null())
+    if (json.contains("pageSize") && !json["pageSize"].is_null())
     {
         try
         {
-            pageSize = json["page_size"].get<int64_t>();
+            pageSize = json["pageSize"].get<int64_t>();
         }
         catch (const std::exception& e)
         {

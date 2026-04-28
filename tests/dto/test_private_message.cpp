@@ -152,16 +152,16 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("sender_user_id"));
-    BOOST_TEST(json["sender_user_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("receiver_user_id"));
-    BOOST_TEST(json["receiver_user_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("creation_timestamp"));
-    BOOST_TEST(json["creation_timestamp"].get<int64_t>() == 1640995200);
+    BOOST_TEST(json.contains("senderUserId"));
+    BOOST_TEST(json["senderUserId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("receiverUserId"));
+    BOOST_TEST(json["receiverUserId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("creationTimestamp"));
+    BOOST_TEST(json["creationTimestamp"].get<int64_t>() == 1640995200);
     BOOST_TEST(json.contains("content"));
     BOOST_TEST(json["content"].get<std::string>() == "test_content");
-    BOOST_TEST(json.contains("is_viewed"));
-    BOOST_TEST(json["is_viewed"].get<bool>() == true);
+    BOOST_TEST(json.contains("isViewed"));
+    BOOST_TEST(json["isViewed"].get<bool>() == true);
 }
 
 // Тест: десериализация из JSON
@@ -169,11 +169,11 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["sender_user_id"] = 42;
-    json["receiver_user_id"] = 42;
-    json["creation_timestamp"] = 1640995200;
+    json["senderUserId"] = 42;
+    json["receiverUserId"] = 42;
+    json["creationTimestamp"] = 1640995200;
     json["content"] = "test_content";
-    json["is_viewed"] = true;
+    json["isViewed"] = true;
 
     PrivateMessage dto(json);
 

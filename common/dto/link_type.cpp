@@ -27,17 +27,17 @@ nlohmann::json LinkType::toJson() const
     // Исходный тип элемента
     if (sourceItemTypeId.has_value())
     {
-        result["source_item_type_id"] = sourceItemTypeId.value();
+        result["sourceItemTypeId"] = sourceItemTypeId.value();
     }
     // Целевой тип элемента
     if (destinationItemTypeId.has_value())
     {
-        result["destination_item_type_id"] = destinationItemTypeId.value();
+        result["destinationItemTypeId"] = destinationItemTypeId.value();
     }
     // Флаг двунаправленной связи
     if (isBidirectional.has_value())
     {
-        result["is_bidirectional"] = isBidirectional.value();
+        result["isBidirectional"] = isBidirectional.value();
     }
     // Название типа связи
     if (caption.has_value())
@@ -69,11 +69,11 @@ bool LinkType::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Исходный тип элемента
-    if (json.contains("source_item_type_id") && !json["source_item_type_id"].is_null())
+    if (json.contains("sourceItemTypeId") && !json["sourceItemTypeId"].is_null())
     {
         try
         {
-            sourceItemTypeId = json["source_item_type_id"].get<int64_t>();
+            sourceItemTypeId = json["sourceItemTypeId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -85,11 +85,11 @@ bool LinkType::fromJson(const nlohmann::json& json)
         sourceItemTypeId = std::nullopt;
     }
     // Целевой тип элемента
-    if (json.contains("destination_item_type_id") && !json["destination_item_type_id"].is_null())
+    if (json.contains("destinationItemTypeId") && !json["destinationItemTypeId"].is_null())
     {
         try
         {
-            destinationItemTypeId = json["destination_item_type_id"].get<int64_t>();
+            destinationItemTypeId = json["destinationItemTypeId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -101,11 +101,11 @@ bool LinkType::fromJson(const nlohmann::json& json)
         destinationItemTypeId = std::nullopt;
     }
     // Флаг двунаправленной связи
-    if (json.contains("is_bidirectional") && !json["is_bidirectional"].is_null())
+    if (json.contains("isBidirectional") && !json["isBidirectional"].is_null())
     {
         try
         {
-            isBidirectional = json["is_bidirectional"].get<bool>();
+            isBidirectional = json["isBidirectional"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -168,15 +168,15 @@ std::string LinkType::validationError() const
 {
     if (!sourceItemTypeId.has_value())
     {
-        return "Поле «source_item_type_id» является обязательным для заполнения";
+        return "Поле «sourceItemTypeId» является обязательным для заполнения";
     }
     if (!destinationItemTypeId.has_value())
     {
-        return "Поле «destination_item_type_id» является обязательным для заполнения";
+        return "Поле «destinationItemTypeId» является обязательным для заполнения";
     }
     if (!isBidirectional.has_value())
     {
-        return "Поле «is_bidirectional» является обязательным для заполнения";
+        return "Поле «isBidirectional» является обязательным для заполнения";
     }
     if (!caption.has_value())
     {

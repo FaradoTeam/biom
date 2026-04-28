@@ -55,30 +55,30 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     AuthResponse dto;
 
     // Поле: accessToken
-    dto.accessToken = "test_access_token";
+    dto.accessToken = "test_accessToken";
     // Поле: tokenType
 
     nlohmann::json json = dto.toJson();
 
     // Проверка полей JSON
-    BOOST_TEST(json.contains("access_token"));
-    BOOST_TEST(json["access_token"].get<std::string>() == "test_access_token");
+    BOOST_TEST(json.contains("accessToken"));
+    BOOST_TEST(json["accessToken"].get<std::string>() == "test_accessToken");
     // Константное поле tokenType должно иметь значение по умолчанию
-    BOOST_TEST(json.contains("token_type"));
-    BOOST_TEST(json["token_type"].get<std::string>() == "Bearer");
+    BOOST_TEST(json.contains("tokenType"));
+    BOOST_TEST(json["tokenType"].get<std::string>() == "Bearer");
 }
 
 // Тест: десериализация из JSON
 BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
-    json["access_token"] = "test_access_token";
+    json["accessToken"] = "test_accessToken";
 
     AuthResponse dto(json);
 
     // Проверка десериализованных значений
     BOOST_TEST(dto.accessToken.has_value());
-    BOOST_TEST(dto.accessToken.value() == "test_access_token");
+    BOOST_TEST(dto.accessToken.value() == "test_accessToken");
     // Константное поле должно иметь значение по умолчанию
     BOOST_TEST(dto.tokenType == "Bearer");
 }
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(RoundTripSerialization)
     AuthResponse original;
 
     // Поле: accessToken
-    original.accessToken = "test_access_token";
+    original.accessToken = "test_accessToken";
     // Поле: tokenType
 
     nlohmann::json json = original.toJson();

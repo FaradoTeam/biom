@@ -27,7 +27,7 @@ nlohmann::json RoleMenuItem::toJson() const
     // Идентификатор роли
     if (roleId.has_value())
     {
-        result["role_id"] = roleId.value();
+        result["roleId"] = roleId.value();
     }
     // Название пункта меню
     if (caption.has_value())
@@ -69,11 +69,11 @@ bool RoleMenuItem::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор роли
-    if (json.contains("role_id") && !json["role_id"].is_null())
+    if (json.contains("roleId") && !json["roleId"].is_null())
     {
         try
         {
-            roleId = json["role_id"].get<int64_t>();
+            roleId = json["roleId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -168,7 +168,7 @@ std::string RoleMenuItem::validationError() const
 {
     if (!roleId.has_value())
     {
-        return "Поле «role_id» является обязательным для заполнения";
+        return "Поле «roleId» является обязательным для заполнения";
     }
     if (!caption.has_value())
     {

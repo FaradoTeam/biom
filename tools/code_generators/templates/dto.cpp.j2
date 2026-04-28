@@ -22,12 +22,12 @@ nlohmann::json {{ dto.name }}::toJson() const
     {% for field in dto.fields %}
     // {{ field.description or field.name }}
     {% if field.const_value %}
-    result["{{ field.name_snake }}"] = {{ field.name_camel }};
+    result["{{ field.name_camel }}"] = {{ field.name_camel }};
     {% else %}
     if ({{ field.name_camel }}.has_value())
     {
         {% if field.cpp_type == 'std::chrono::system_clock::time_point' %}
-        result["{{ field.name_snake }}"] = timePointToSeconds({{ field.name_camel }}.value());
+        result["{{ field.name_camel }}"] = timePointToSeconds({{ field.name_camel }}.value());
         {% elif field.cpp_type.startswith('std::vector<') %}
         if (!{{ field.name_camel }}.value().empty())
         {
@@ -40,17 +40,17 @@ nlohmann::json {{ dto.name }}::toJson() const
                 arr.push_back(item);
                 {% endif %}
             }
-            result["{{ field.name_snake }}"] = arr;
+            result["{{ field.name_camel }}"] = arr;
         }
         {% elif field.cpp_type in dto_names %}
-        result["{{ field.name_snake }}"] = {{ field.name_camel }}.value().toJson();
+        result["{{ field.name_camel }}"] = {{ field.name_camel }}.value().toJson();
         {% elif field.cpp_type == 'nlohmann::json' %}
         if (!{{ field.name_camel }}.value().is_null())
         {
-            result["{{ field.name_snake }}"] = {{ field.name_camel }}.value();
+            result["{{ field.name_camel }}"] = {{ field.name_camel }}.value();
         }
         {% else %}
-        result["{{ field.name_snake }}"] = {{ field.name_camel }}.value();
+        result["{{ field.name_camel }}"] = {{ field.name_camel }}.value();
         {% endif %}
     }
     {% endif %}
@@ -68,18 +68,18 @@ bool {{ dto.name }}::fromJson(const nlohmann::json& json)
     {% if field.const_value %}
     // Constant field - ignore value from JSON
     {% else %}
-    if (json.contains("{{ field.name_snake }}") && !json["{{ field.name_snake }}"].is_null())
+    if (json.contains("{{ field.name_camel }}") && !json["{{ field.name_camel }}"].is_null())
     {
         try
         {
             {% if field.cpp_type == 'std::string' %}
-            {{ field.name_camel }} = json["{{ field.name_snake }}"].get<std::string>();
+            {{ field.name_camel }} = json["{{ field.name_camel }}"].get<std::string>();
             {% elif field.cpp_type == 'std::chrono::system_clock::time_point' %}
-            auto timestampValue = json["{{ field.name_snake }}"].get<int64_t>();
+            auto timestampValue = json["{{ field.name_camel }}"].get<int64_t>();
             {{ field.name_camel }} = secondsToTimePoint(timestampValue);
             {% elif field.cpp_type.startswith('std::vector<') %}
             {{ field.cpp_type }} vec;
-            for (const auto& item : json["{{ field.name_snake }}"])
+            for (const auto& item : json["{{ field.name_camel }}"])
             {
                 {% if field.array_item_type in dto_names %}
                 vec.push_back({{ field.array_item_type }}(item));
@@ -95,13 +95,13 @@ bool {{ dto.name }}::fromJson(const nlohmann::json& json)
             }
             {{ field.name_camel }} = std::move(vec);
             {% elif field.cpp_type in dto_names %}
-            {{ field.name_camel }} = {{ field.cpp_type }}(json["{{ field.name_snake }}"]);
+            {{ field.name_camel }} = {{ field.cpp_type }}(json["{{ field.name_camel }}"]);
             {% elif field.cpp_type == 'nlohmann::json' %}
-            {{ field.name_camel }} = json["{{ field.name_snake }}"];
+            {{ field.name_camel }} = json["{{ field.name_camel }}"];
             {% elif field.cpp_type in ['int64_t', 'int32_t', 'double', 'float', 'bool'] %}
-            {{ field.name_camel }} = json["{{ field.name_snake }}"].get<{{ field.cpp_type }}>();
+            {{ field.name_camel }} = json["{{ field.name_camel }}"].get<{{ field.cpp_type }}>();
             {% else %}
-            {{ field.name_camel }} = json["{{ field.name_snake }}"].get<{{ field.cpp_type }}>();
+            {{ field.name_camel }} = json["{{ field.name_camel }}"].get<{{ field.cpp_type }}>();
             {% endif %}
         }
         catch (const std::exception& e)
@@ -156,7 +156,7 @@ std::string {{ dto.name }}::validationError() const
     {% if field.required and not field.const_value %}
     if (!{{ field.name_camel }}.has_value())
     {
-        return "Поле «{{ field.name_snake }}» является обязательным для заполнения";
+        return "Поле «{{ field.name_camel }}» является обязательным для заполнения";
     }
     {% endif %}
     {% endfor %}
@@ -166,12 +166,12 @@ std::string {{ dto.name }}::validationError() const
     {% if field.cpp_type == 'std::string' %}
     if ({{ field.name_camel }}.value().empty())
     {
-        return "Поле «{{ field.name_snake }}» не может быть пустой строкой";
+        return "Поле «{{ field.name_camel }}» не может быть пустой строкой";
     }
     {% elif field.cpp_type.startswith('std::vector<') %}
     if ({{ field.name_camel }}.value().empty())
     {
-        return "Поле «{{ field.name_snake }}» должно содержать хотя бы один элемент";
+        return "Поле «{{ field.name_camel }}» должно содержать хотя бы один элемент";
     }
     {% endif %}
     {% endif %}

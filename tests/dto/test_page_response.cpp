@@ -114,12 +114,12 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     BOOST_TEST(json.contains("items"));
     BOOST_TEST(json["items"].is_array());
     BOOST_TEST(json["items"].size() == 2);
-    BOOST_TEST(json.contains("total_count"));
-    BOOST_TEST(json["total_count"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("totalCount"));
+    BOOST_TEST(json["totalCount"].get<int64_t>() == 42);
     BOOST_TEST(json.contains("page"));
     BOOST_TEST(json["page"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("page_size"));
-    BOOST_TEST(json["page_size"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("pageSize"));
+    BOOST_TEST(json["pageSize"].get<int64_t>() == 42);
 }
 
 // Тест: десериализация из JSON
@@ -127,9 +127,9 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["items"] = nlohmann::json::array({"item1", "item2"});
-    json["total_count"] = 42;
+    json["totalCount"] = 42;
     json["page"] = 42;
-    json["page_size"] = 42;
+    json["pageSize"] = 42;
 
     PageResponse dto(json);
 

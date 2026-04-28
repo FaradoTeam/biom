@@ -27,12 +27,12 @@ nlohmann::json ItemDocument::toJson() const
     // Идентификатор элемента
     if (itemId.has_value())
     {
-        result["item_id"] = itemId.value();
+        result["itemId"] = itemId.value();
     }
     // Идентификатор документа
     if (documentId.has_value())
     {
-        result["document_id"] = documentId.value();
+        result["documentId"] = documentId.value();
     }
 
     return result;
@@ -59,11 +59,11 @@ bool ItemDocument::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор элемента
-    if (json.contains("item_id") && !json["item_id"].is_null())
+    if (json.contains("itemId") && !json["itemId"].is_null())
     {
         try
         {
-            itemId = json["item_id"].get<int64_t>();
+            itemId = json["itemId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -75,11 +75,11 @@ bool ItemDocument::fromJson(const nlohmann::json& json)
         itemId = std::nullopt;
     }
     // Идентификатор документа
-    if (json.contains("document_id") && !json["document_id"].is_null())
+    if (json.contains("documentId") && !json["documentId"].is_null())
     {
         try
         {
-            documentId = json["document_id"].get<int64_t>();
+            documentId = json["documentId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -114,11 +114,11 @@ std::string ItemDocument::validationError() const
 {
     if (!itemId.has_value())
     {
-        return "Поле «item_id» является обязательным для заполнения";
+        return "Поле «itemId» является обязательным для заполнения";
     }
     if (!documentId.has_value())
     {
-        return "Поле «document_id» является обязательным для заполнения";
+        return "Поле «documentId» является обязательным для заполнения";
     }
 
 

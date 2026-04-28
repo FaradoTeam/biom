@@ -142,23 +142,23 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Поле: kind
     dto.kind = "test_kind";
     // Поле: defaultContent
-    dto.defaultContent = "test_default_content";
+    dto.defaultContent = "test_defaultContent";
 
     nlohmann::json json = dto.toJson();
 
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("workflow_id"));
-    BOOST_TEST(json["workflow_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("default_state_id"));
-    BOOST_TEST(json["default_state_id"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("workflowId"));
+    BOOST_TEST(json["workflowId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("defaultStateId"));
+    BOOST_TEST(json["defaultStateId"].get<int64_t>() == 42);
     BOOST_TEST(json.contains("caption"));
     BOOST_TEST(json["caption"].get<std::string>() == "test_caption");
     BOOST_TEST(json.contains("kind"));
     BOOST_TEST(json["kind"].get<std::string>() == "test_kind");
-    BOOST_TEST(json.contains("default_content"));
-    BOOST_TEST(json["default_content"].get<std::string>() == "test_default_content");
+    BOOST_TEST(json.contains("defaultContent"));
+    BOOST_TEST(json["defaultContent"].get<std::string>() == "test_defaultContent");
 }
 
 // Тест: десериализация из JSON
@@ -166,11 +166,11 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["workflow_id"] = 42;
-    json["default_state_id"] = 42;
+    json["workflowId"] = 42;
+    json["defaultStateId"] = 42;
     json["caption"] = "test_caption";
     json["kind"] = "test_kind";
-    json["default_content"] = "test_default_content";
+    json["defaultContent"] = "test_defaultContent";
 
     ItemType dto(json);
 
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
     BOOST_TEST(dto.kind.has_value());
     BOOST_TEST(dto.kind.value() == "test_kind");
     BOOST_TEST(dto.defaultContent.has_value());
-    BOOST_TEST(dto.defaultContent.value() == "test_default_content");
+    BOOST_TEST(dto.defaultContent.value() == "test_defaultContent");
 }
 
 // Тест: Сериализация в оба конца
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE(RoundTripSerialization)
     // Поле: kind
     original.kind = "test_kind";
     // Поле: defaultContent
-    original.defaultContent = "test_default_content";
+    original.defaultContent = "test_defaultContent";
 
     nlohmann::json json = original.toJson();
     ItemType deserialized(json);

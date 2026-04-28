@@ -131,8 +131,8 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("role_id"));
-    BOOST_TEST(json["role_id"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("roleId"));
+    BOOST_TEST(json["roleId"].get<int64_t>() == 42);
     BOOST_TEST(json.contains("caption"));
     BOOST_TEST(json["caption"].get<std::string>() == "test_caption");
     BOOST_TEST(json.contains("link"));
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["role_id"] = 42;
+    json["roleId"] = 42;
     json["caption"] = "test_caption";
     json["link"] = "test_link";
     json["icon"] = "test_icon";

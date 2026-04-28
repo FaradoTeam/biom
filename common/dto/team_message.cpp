@@ -27,17 +27,17 @@ nlohmann::json TeamMessage::toJson() const
     // Идентификатор отправителя
     if (senderUserId.has_value())
     {
-        result["sender_user_id"] = senderUserId.value();
+        result["senderUserId"] = senderUserId.value();
     }
     // Идентификатор команды
     if (teamId.has_value())
     {
-        result["team_id"] = teamId.value();
+        result["teamId"] = teamId.value();
     }
     // Время отправки
     if (creationTimestamp.has_value())
     {
-        result["creation_timestamp"] = timePointToSeconds(creationTimestamp.value());
+        result["creationTimestamp"] = timePointToSeconds(creationTimestamp.value());
     }
     // Текст сообщения
     if (content.has_value())
@@ -69,11 +69,11 @@ bool TeamMessage::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор отправителя
-    if (json.contains("sender_user_id") && !json["sender_user_id"].is_null())
+    if (json.contains("senderUserId") && !json["senderUserId"].is_null())
     {
         try
         {
-            senderUserId = json["sender_user_id"].get<int64_t>();
+            senderUserId = json["senderUserId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -85,11 +85,11 @@ bool TeamMessage::fromJson(const nlohmann::json& json)
         senderUserId = std::nullopt;
     }
     // Идентификатор команды
-    if (json.contains("team_id") && !json["team_id"].is_null())
+    if (json.contains("teamId") && !json["teamId"].is_null())
     {
         try
         {
-            teamId = json["team_id"].get<int64_t>();
+            teamId = json["teamId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -101,11 +101,11 @@ bool TeamMessage::fromJson(const nlohmann::json& json)
         teamId = std::nullopt;
     }
     // Время отправки
-    if (json.contains("creation_timestamp") && !json["creation_timestamp"].is_null())
+    if (json.contains("creationTimestamp") && !json["creationTimestamp"].is_null())
     {
         try
         {
-            auto timestampValue = json["creation_timestamp"].get<int64_t>();
+            auto timestampValue = json["creationTimestamp"].get<int64_t>();
             creationTimestamp = secondsToTimePoint(timestampValue);
         }
         catch (const std::exception& e)
@@ -169,15 +169,15 @@ std::string TeamMessage::validationError() const
 {
     if (!senderUserId.has_value())
     {
-        return "Поле «sender_user_id» является обязательным для заполнения";
+        return "Поле «senderUserId» является обязательным для заполнения";
     }
     if (!teamId.has_value())
     {
-        return "Поле «team_id» является обязательным для заполнения";
+        return "Поле «teamId» является обязательным для заполнения";
     }
     if (!creationTimestamp.has_value())
     {
-        return "Поле «creation_timestamp» является обязательным для заполнения";
+        return "Поле «creationTimestamp» является обязательным для заполнения";
     }
     if (!content.has_value())
     {

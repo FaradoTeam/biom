@@ -27,12 +27,12 @@ nlohmann::json ItemType::toJson() const
     // Идентификатор рабочего процесса
     if (workflowId.has_value())
     {
-        result["workflow_id"] = workflowId.value();
+        result["workflowId"] = workflowId.value();
     }
     // Состояние по умолчанию для новых элементов
     if (defaultStateId.has_value())
     {
-        result["default_state_id"] = defaultStateId.value();
+        result["defaultStateId"] = defaultStateId.value();
     }
     // Название типа
     if (caption.has_value())
@@ -47,7 +47,7 @@ nlohmann::json ItemType::toJson() const
     // Содержимое по умолчанию (шаблон для создания новых item)
     if (defaultContent.has_value())
     {
-        result["default_content"] = defaultContent.value();
+        result["defaultContent"] = defaultContent.value();
     }
 
     return result;
@@ -74,11 +74,11 @@ bool ItemType::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор рабочего процесса
-    if (json.contains("workflow_id") && !json["workflow_id"].is_null())
+    if (json.contains("workflowId") && !json["workflowId"].is_null())
     {
         try
         {
-            workflowId = json["workflow_id"].get<int64_t>();
+            workflowId = json["workflowId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -90,11 +90,11 @@ bool ItemType::fromJson(const nlohmann::json& json)
         workflowId = std::nullopt;
     }
     // Состояние по умолчанию для новых элементов
-    if (json.contains("default_state_id") && !json["default_state_id"].is_null())
+    if (json.contains("defaultStateId") && !json["defaultStateId"].is_null())
     {
         try
         {
-            defaultStateId = json["default_state_id"].get<int64_t>();
+            defaultStateId = json["defaultStateId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -138,11 +138,11 @@ bool ItemType::fromJson(const nlohmann::json& json)
         kind = std::nullopt;
     }
     // Содержимое по умолчанию (шаблон для создания новых item)
-    if (json.contains("default_content") && !json["default_content"].is_null())
+    if (json.contains("defaultContent") && !json["defaultContent"].is_null())
     {
         try
         {
-            defaultContent = json["default_content"].get<std::string>();
+            defaultContent = json["defaultContent"].get<std::string>();
         }
         catch (const std::exception& e)
         {
@@ -193,11 +193,11 @@ std::string ItemType::validationError() const
 {
     if (!workflowId.has_value())
     {
-        return "Поле «workflow_id» является обязательным для заполнения";
+        return "Поле «workflowId» является обязательным для заполнения";
     }
     if (!defaultStateId.has_value())
     {
-        return "Поле «default_state_id» является обязательным для заполнения";
+        return "Поле «defaultStateId» является обязательным для заполнения";
     }
     if (!caption.has_value())
     {

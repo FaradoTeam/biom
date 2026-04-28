@@ -27,12 +27,12 @@ nlohmann::json CommentDocument::toJson() const
     // Идентификатор комментария
     if (commentId.has_value())
     {
-        result["comment_id"] = commentId.value();
+        result["commentId"] = commentId.value();
     }
     // Идентификатор документа
     if (documentId.has_value())
     {
-        result["document_id"] = documentId.value();
+        result["documentId"] = documentId.value();
     }
 
     return result;
@@ -59,11 +59,11 @@ bool CommentDocument::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор комментария
-    if (json.contains("comment_id") && !json["comment_id"].is_null())
+    if (json.contains("commentId") && !json["commentId"].is_null())
     {
         try
         {
-            commentId = json["comment_id"].get<int64_t>();
+            commentId = json["commentId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -75,11 +75,11 @@ bool CommentDocument::fromJson(const nlohmann::json& json)
         commentId = std::nullopt;
     }
     // Идентификатор документа
-    if (json.contains("document_id") && !json["document_id"].is_null())
+    if (json.contains("documentId") && !json["documentId"].is_null())
     {
         try
         {
-            documentId = json["document_id"].get<int64_t>();
+            documentId = json["documentId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -114,11 +114,11 @@ std::string CommentDocument::validationError() const
 {
     if (!commentId.has_value())
     {
-        return "Поле «comment_id» является обязательным для заполнения";
+        return "Поле «commentId» является обязательным для заполнения";
     }
     if (!documentId.has_value())
     {
-        return "Поле «document_id» является обязательным для заполнения";
+        return "Поле «documentId» является обязательным для заполнения";
     }
 
 

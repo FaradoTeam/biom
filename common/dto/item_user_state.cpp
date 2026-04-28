@@ -27,17 +27,17 @@ nlohmann::json ItemUserState::toJson() const
     // Идентификатор элемента
     if (itemId.has_value())
     {
-        result["item_id"] = itemId.value();
+        result["itemId"] = itemId.value();
     }
     // Идентификатор пользователя
     if (userId.has_value())
     {
-        result["user_id"] = userId.value();
+        result["userId"] = userId.value();
     }
     // Идентификатор состояния
     if (stateId.has_value())
     {
-        result["state_id"] = stateId.value();
+        result["stateId"] = stateId.value();
     }
     // Комментарий к переходу
     if (comment.has_value())
@@ -74,11 +74,11 @@ bool ItemUserState::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор элемента
-    if (json.contains("item_id") && !json["item_id"].is_null())
+    if (json.contains("itemId") && !json["itemId"].is_null())
     {
         try
         {
-            itemId = json["item_id"].get<int64_t>();
+            itemId = json["itemId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -90,11 +90,11 @@ bool ItemUserState::fromJson(const nlohmann::json& json)
         itemId = std::nullopt;
     }
     // Идентификатор пользователя
-    if (json.contains("user_id") && !json["user_id"].is_null())
+    if (json.contains("userId") && !json["userId"].is_null())
     {
         try
         {
-            userId = json["user_id"].get<int64_t>();
+            userId = json["userId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -106,11 +106,11 @@ bool ItemUserState::fromJson(const nlohmann::json& json)
         userId = std::nullopt;
     }
     // Идентификатор состояния
-    if (json.contains("state_id") && !json["state_id"].is_null())
+    if (json.contains("stateId") && !json["stateId"].is_null())
     {
         try
         {
-            stateId = json["state_id"].get<int64_t>();
+            stateId = json["stateId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -186,15 +186,15 @@ std::string ItemUserState::validationError() const
 {
     if (!itemId.has_value())
     {
-        return "Поле «item_id» является обязательным для заполнения";
+        return "Поле «itemId» является обязательным для заполнения";
     }
     if (!userId.has_value())
     {
-        return "Поле «user_id» является обязательным для заполнения";
+        return "Поле «userId» является обязательным для заполнения";
     }
     if (!stateId.has_value())
     {
-        return "Поле «state_id» является обязательным для заполнения";
+        return "Поле «stateId» является обязательным для заполнения";
     }
     if (!timestamp.has_value())
     {

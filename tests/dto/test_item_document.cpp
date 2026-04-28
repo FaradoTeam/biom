@@ -95,10 +95,10 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("item_id"));
-    BOOST_TEST(json["item_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("document_id"));
-    BOOST_TEST(json["document_id"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("itemId"));
+    BOOST_TEST(json["itemId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("documentId"));
+    BOOST_TEST(json["documentId"].get<int64_t>() == 42);
 }
 
 // Тест: десериализация из JSON
@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["item_id"] = 42;
-    json["document_id"] = 42;
+    json["itemId"] = 42;
+    json["documentId"] = 42;
 
     ItemDocument dto(json);
 

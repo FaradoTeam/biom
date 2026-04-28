@@ -113,12 +113,12 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("rule_id"));
-    BOOST_TEST(json["rule_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("state_id"));
-    BOOST_TEST(json["state_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("is_state_allowed"));
-    BOOST_TEST(json["is_state_allowed"].get<bool>() == true);
+    BOOST_TEST(json.contains("ruleId"));
+    BOOST_TEST(json["ruleId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("stateId"));
+    BOOST_TEST(json["stateId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("isStateAllowed"));
+    BOOST_TEST(json["isStateAllowed"].get<bool>() == true);
 }
 
 // Тест: десериализация из JSON
@@ -126,9 +126,9 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["rule_id"] = 42;
-    json["state_id"] = 42;
-    json["is_state_allowed"] = true;
+    json["ruleId"] = 42;
+    json["stateId"] = 42;
+    json["isStateAllowed"] = true;
 
     RuleState dto(json);
 

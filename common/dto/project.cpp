@@ -27,7 +27,7 @@ nlohmann::json Project::toJson() const
     // Идентификатор родительского проекта (null для корневых)
     if (parentId.has_value())
     {
-        result["parent_id"] = parentId.value();
+        result["parentId"] = parentId.value();
     }
     // Название проекта
     if (caption.has_value())
@@ -42,17 +42,17 @@ nlohmann::json Project::toJson() const
     // Дата и время создания
     if (createdAt.has_value())
     {
-        result["created_at"] = timePointToSeconds(createdAt.value());
+        result["createdAt"] = timePointToSeconds(createdAt.value());
     }
     // Дата и время последнего обновления
     if (updatedAt.has_value())
     {
-        result["updated_at"] = timePointToSeconds(updatedAt.value());
+        result["updatedAt"] = timePointToSeconds(updatedAt.value());
     }
     // Флаг архивации (мягкое удаление)
     if (isArchive.has_value())
     {
-        result["is_archive"] = isArchive.value();
+        result["isArchive"] = isArchive.value();
     }
 
     return result;
@@ -79,11 +79,11 @@ bool Project::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор родительского проекта (null для корневых)
-    if (json.contains("parent_id") && !json["parent_id"].is_null())
+    if (json.contains("parentId") && !json["parentId"].is_null())
     {
         try
         {
-            parentId = json["parent_id"].get<int64_t>();
+            parentId = json["parentId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -127,11 +127,11 @@ bool Project::fromJson(const nlohmann::json& json)
         description = std::nullopt;
     }
     // Дата и время создания
-    if (json.contains("created_at") && !json["created_at"].is_null())
+    if (json.contains("createdAt") && !json["createdAt"].is_null())
     {
         try
         {
-            auto timestampValue = json["created_at"].get<int64_t>();
+            auto timestampValue = json["createdAt"].get<int64_t>();
             createdAt = secondsToTimePoint(timestampValue);
         }
         catch (const std::exception& e)
@@ -144,11 +144,11 @@ bool Project::fromJson(const nlohmann::json& json)
         createdAt = std::nullopt;
     }
     // Дата и время последнего обновления
-    if (json.contains("updated_at") && !json["updated_at"].is_null())
+    if (json.contains("updatedAt") && !json["updatedAt"].is_null())
     {
         try
         {
-            auto timestampValue = json["updated_at"].get<int64_t>();
+            auto timestampValue = json["updatedAt"].get<int64_t>();
             updatedAt = secondsToTimePoint(timestampValue);
         }
         catch (const std::exception& e)
@@ -161,11 +161,11 @@ bool Project::fromJson(const nlohmann::json& json)
         updatedAt = std::nullopt;
     }
     // Флаг архивации (мягкое удаление)
-    if (json.contains("is_archive") && !json["is_archive"].is_null())
+    if (json.contains("isArchive") && !json["isArchive"].is_null())
     {
         try
         {
-            isArchive = json["is_archive"].get<bool>();
+            isArchive = json["isArchive"].get<bool>();
         }
         catch (const std::exception& e)
         {

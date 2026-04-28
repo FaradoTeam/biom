@@ -27,12 +27,12 @@ nlohmann::json ProjectTeam::toJson() const
     // Идентификатор проекта
     if (projectId.has_value())
     {
-        result["project_id"] = projectId.value();
+        result["projectId"] = projectId.value();
     }
     // Идентификатор команды
     if (teamId.has_value())
     {
-        result["team_id"] = teamId.value();
+        result["teamId"] = teamId.value();
     }
 
     return result;
@@ -59,11 +59,11 @@ bool ProjectTeam::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор проекта
-    if (json.contains("project_id") && !json["project_id"].is_null())
+    if (json.contains("projectId") && !json["projectId"].is_null())
     {
         try
         {
-            projectId = json["project_id"].get<int64_t>();
+            projectId = json["projectId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -75,11 +75,11 @@ bool ProjectTeam::fromJson(const nlohmann::json& json)
         projectId = std::nullopt;
     }
     // Идентификатор команды
-    if (json.contains("team_id") && !json["team_id"].is_null())
+    if (json.contains("teamId") && !json["teamId"].is_null())
     {
         try
         {
-            teamId = json["team_id"].get<int64_t>();
+            teamId = json["teamId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -114,11 +114,11 @@ std::string ProjectTeam::validationError() const
 {
     if (!projectId.has_value())
     {
-        return "Поле «project_id» является обязательным для заполнения";
+        return "Поле «projectId» является обязательным для заполнения";
     }
     if (!teamId.has_value())
     {
-        return "Поле «team_id» является обязательным для заполнения";
+        return "Поле «teamId» является обязательным для заполнения";
     }
 
 

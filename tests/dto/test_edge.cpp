@@ -95,10 +95,10 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("begin_state_id"));
-    BOOST_TEST(json["begin_state_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("end_state_id"));
-    BOOST_TEST(json["end_state_id"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("beginStateId"));
+    BOOST_TEST(json["beginStateId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("endStateId"));
+    BOOST_TEST(json["endStateId"].get<int64_t>() == 42);
 }
 
 // Тест: десериализация из JSON
@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["begin_state_id"] = 42;
-    json["end_state_id"] = 42;
+    json["beginStateId"] = 42;
+    json["endStateId"] = 42;
 
     Edge dto(json);
 

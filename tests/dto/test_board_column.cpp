@@ -131,12 +131,12 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("board_id"));
-    BOOST_TEST(json["board_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("state_id"));
-    BOOST_TEST(json["state_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("order_number"));
-    BOOST_TEST(json["order_number"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("boardId"));
+    BOOST_TEST(json["boardId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("stateId"));
+    BOOST_TEST(json["stateId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("orderNumber"));
+    BOOST_TEST(json["orderNumber"].get<int64_t>() == 42);
     BOOST_TEST(json.contains("settings"));
     BOOST_TEST(json["settings"].get<std::string>() == "test_settings");
 }
@@ -146,9 +146,9 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["board_id"] = 42;
-    json["state_id"] = 42;
-    json["order_number"] = 42;
+    json["boardId"] = 42;
+    json["stateId"] = 42;
+    json["orderNumber"] = 42;
     json["settings"] = "test_settings";
 
     BoardColumn dto(json);

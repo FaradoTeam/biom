@@ -113,12 +113,12 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("link_type_id"));
-    BOOST_TEST(json["link_type_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("source_item_id"));
-    BOOST_TEST(json["source_item_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("destination_item_id"));
-    BOOST_TEST(json["destination_item_id"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("linkTypeId"));
+    BOOST_TEST(json["linkTypeId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("sourceItemId"));
+    BOOST_TEST(json["sourceItemId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("destinationItemId"));
+    BOOST_TEST(json["destinationItemId"].get<int64_t>() == 42);
 }
 
 // Тест: десериализация из JSON
@@ -126,9 +126,9 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["link_type_id"] = 42;
-    json["source_item_id"] = 42;
-    json["destination_item_id"] = 42;
+    json["linkTypeId"] = 42;
+    json["sourceItemId"] = 42;
+    json["destinationItemId"] = 42;
 
     ItemLink dto(json);
 

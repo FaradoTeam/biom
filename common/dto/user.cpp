@@ -32,17 +32,17 @@ nlohmann::json User::toJson() const
     // Имя пользователя
     if (firstName.has_value())
     {
-        result["first_name"] = firstName.value();
+        result["firstName"] = firstName.value();
     }
     // Отчество пользователя
     if (middleName.has_value())
     {
-        result["middle_name"] = middleName.value();
+        result["middleName"] = middleName.value();
     }
     // Фамилия пользователя
     if (lastName.has_value())
     {
-        result["last_name"] = lastName.value();
+        result["lastName"] = lastName.value();
     }
     // Email пользователя (уникальный)
     if (email.has_value())
@@ -52,22 +52,22 @@ nlohmann::json User::toJson() const
     // Флаг необходимости смены пароля при следующем входе
     if (needChangePassword.has_value())
     {
-        result["need_change_password"] = needChangePassword.value();
+        result["needChangePassword"] = needChangePassword.value();
     }
     // Флаг блокировки пользователя (запрет входа)
     if (isBlocked.has_value())
     {
-        result["is_blocked"] = isBlocked.value();
+        result["isBlocked"] = isBlocked.value();
     }
     // Флаг супер-администратора (имеет все права)
     if (isSuperAdmin.has_value())
     {
-        result["is_super_admin"] = isSuperAdmin.value();
+        result["isSuperAdmin"] = isSuperAdmin.value();
     }
     // Флаг скрытого пользователя (не отображается в списках)
     if (isHidden.has_value())
     {
-        result["is_hidden"] = isHidden.value();
+        result["isHidden"] = isHidden.value();
     }
 
     return result;
@@ -110,11 +110,11 @@ bool User::fromJson(const nlohmann::json& json)
         login = std::nullopt;
     }
     // Имя пользователя
-    if (json.contains("first_name") && !json["first_name"].is_null())
+    if (json.contains("firstName") && !json["firstName"].is_null())
     {
         try
         {
-            firstName = json["first_name"].get<std::string>();
+            firstName = json["firstName"].get<std::string>();
         }
         catch (const std::exception& e)
         {
@@ -126,11 +126,11 @@ bool User::fromJson(const nlohmann::json& json)
         firstName = std::nullopt;
     }
     // Отчество пользователя
-    if (json.contains("middle_name") && !json["middle_name"].is_null())
+    if (json.contains("middleName") && !json["middleName"].is_null())
     {
         try
         {
-            middleName = json["middle_name"].get<std::string>();
+            middleName = json["middleName"].get<std::string>();
         }
         catch (const std::exception& e)
         {
@@ -142,11 +142,11 @@ bool User::fromJson(const nlohmann::json& json)
         middleName = std::nullopt;
     }
     // Фамилия пользователя
-    if (json.contains("last_name") && !json["last_name"].is_null())
+    if (json.contains("lastName") && !json["lastName"].is_null())
     {
         try
         {
-            lastName = json["last_name"].get<std::string>();
+            lastName = json["lastName"].get<std::string>();
         }
         catch (const std::exception& e)
         {
@@ -174,11 +174,11 @@ bool User::fromJson(const nlohmann::json& json)
         email = std::nullopt;
     }
     // Флаг необходимости смены пароля при следующем входе
-    if (json.contains("need_change_password") && !json["need_change_password"].is_null())
+    if (json.contains("needChangePassword") && !json["needChangePassword"].is_null())
     {
         try
         {
-            needChangePassword = json["need_change_password"].get<bool>();
+            needChangePassword = json["needChangePassword"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -190,11 +190,11 @@ bool User::fromJson(const nlohmann::json& json)
         needChangePassword = std::nullopt;
     }
     // Флаг блокировки пользователя (запрет входа)
-    if (json.contains("is_blocked") && !json["is_blocked"].is_null())
+    if (json.contains("isBlocked") && !json["isBlocked"].is_null())
     {
         try
         {
-            isBlocked = json["is_blocked"].get<bool>();
+            isBlocked = json["isBlocked"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -206,11 +206,11 @@ bool User::fromJson(const nlohmann::json& json)
         isBlocked = std::nullopt;
     }
     // Флаг супер-администратора (имеет все права)
-    if (json.contains("is_super_admin") && !json["is_super_admin"].is_null())
+    if (json.contains("isSuperAdmin") && !json["isSuperAdmin"].is_null())
     {
         try
         {
-            isSuperAdmin = json["is_super_admin"].get<bool>();
+            isSuperAdmin = json["isSuperAdmin"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -222,11 +222,11 @@ bool User::fromJson(const nlohmann::json& json)
         isSuperAdmin = std::nullopt;
     }
     // Флаг скрытого пользователя (не отображается в списках)
-    if (json.contains("is_hidden") && !json["is_hidden"].is_null())
+    if (json.contains("isHidden") && !json["isHidden"].is_null())
     {
         try
         {
-            isHidden = json["is_hidden"].get<bool>();
+            isHidden = json["isHidden"].get<bool>();
         }
         catch (const std::exception& e)
         {
