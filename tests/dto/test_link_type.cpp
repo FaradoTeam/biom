@@ -131,12 +131,12 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("source_item_type_id"));
-    BOOST_TEST(json["source_item_type_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("destination_item_type_id"));
-    BOOST_TEST(json["destination_item_type_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("is_bidirectional"));
-    BOOST_TEST(json["is_bidirectional"].get<bool>() == true);
+    BOOST_TEST(json.contains("sourceItemTypeId"));
+    BOOST_TEST(json["sourceItemTypeId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("destinationItemTypeId"));
+    BOOST_TEST(json["destinationItemTypeId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("isBidirectional"));
+    BOOST_TEST(json["isBidirectional"].get<bool>() == true);
     BOOST_TEST(json.contains("caption"));
     BOOST_TEST(json["caption"].get<std::string>() == "test_caption");
 }
@@ -146,9 +146,9 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["source_item_type_id"] = 42;
-    json["destination_item_type_id"] = 42;
-    json["is_bidirectional"] = true;
+    json["sourceItemTypeId"] = 42;
+    json["destinationItemTypeId"] = 42;
+    json["isBidirectional"] = true;
     json["caption"] = "test_caption";
 
     LinkType dto(json);

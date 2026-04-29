@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Поле: size
     dto.size = 42;
     // Поле: mimeType
-    dto.mimeType = "test_mime_type";
+    dto.mimeType = "test_mimeType";
     // Поле: uploadedAt
     dto.uploadedAt = secondsToTimePoint(1640995200);
     // Поле: uploadedByUserId
@@ -216,12 +216,12 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     BOOST_TEST(json["filename"].get<std::string>() == "test_filename");
     BOOST_TEST(json.contains("size"));
     BOOST_TEST(json["size"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("mime_type"));
-    BOOST_TEST(json["mime_type"].get<std::string>() == "test_mime_type");
-    BOOST_TEST(json.contains("uploaded_at"));
-    BOOST_TEST(json["uploaded_at"].get<int64_t>() == 1640995200);
-    BOOST_TEST(json.contains("uploaded_by_user_id"));
-    BOOST_TEST(json["uploaded_by_user_id"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("mimeType"));
+    BOOST_TEST(json["mimeType"].get<std::string>() == "test_mimeType");
+    BOOST_TEST(json.contains("uploadedAt"));
+    BOOST_TEST(json["uploadedAt"].get<int64_t>() == 1640995200);
+    BOOST_TEST(json.contains("uploadedByUserId"));
+    BOOST_TEST(json["uploadedByUserId"].get<int64_t>() == 42);
 }
 
 // Тест: десериализация из JSON
@@ -234,9 +234,9 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
     json["path"] = "test_path";
     json["filename"] = "test_filename";
     json["size"] = 42;
-    json["mime_type"] = "test_mime_type";
-    json["uploaded_at"] = 1640995200;
-    json["uploaded_by_user_id"] = 42;
+    json["mimeType"] = "test_mimeType";
+    json["uploadedAt"] = 1640995200;
+    json["uploadedByUserId"] = 42;
 
     Document dto(json);
 
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
     BOOST_TEST(dto.size.has_value());
     BOOST_TEST(dto.size.value() == 42);
     BOOST_TEST(dto.mimeType.has_value());
-    BOOST_TEST(dto.mimeType.value() == "test_mime_type");
+    BOOST_TEST(dto.mimeType.value() == "test_mimeType");
     BOOST_TEST(dto.uploadedAt.has_value());
     BOOST_CHECK_EQUAL(timePointToSeconds(dto.uploadedAt.value()), 1640995200);
     BOOST_TEST(dto.uploadedByUserId.has_value());
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE(RoundTripSerialization)
     // Поле: size
     original.size = 42;
     // Поле: mimeType
-    original.mimeType = "test_mime_type";
+    original.mimeType = "test_mimeType";
     // Поле: uploadedAt
     original.uploadedAt = secondsToTimePoint(1640995200);
     // Поле: uploadedByUserId

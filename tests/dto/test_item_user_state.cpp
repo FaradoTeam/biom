@@ -152,12 +152,12 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("item_id"));
-    BOOST_TEST(json["item_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("user_id"));
-    BOOST_TEST(json["user_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("state_id"));
-    BOOST_TEST(json["state_id"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("itemId"));
+    BOOST_TEST(json["itemId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("userId"));
+    BOOST_TEST(json["userId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("stateId"));
+    BOOST_TEST(json["stateId"].get<int64_t>() == 42);
     BOOST_TEST(json.contains("comment"));
     BOOST_TEST(json["comment"].get<std::string>() == "test_comment");
     BOOST_TEST(json.contains("timestamp"));
@@ -169,9 +169,9 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["item_id"] = 42;
-    json["user_id"] = 42;
-    json["state_id"] = 42;
+    json["itemId"] = 42;
+    json["userId"] = 42;
+    json["stateId"] = 42;
     json["comment"] = "test_comment";
     json["timestamp"] = 1640995200;
 

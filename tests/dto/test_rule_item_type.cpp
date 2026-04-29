@@ -131,14 +131,14 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("rule_id"));
-    BOOST_TEST(json["rule_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("item_type_id"));
-    BOOST_TEST(json["item_type_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("is_reader"));
-    BOOST_TEST(json["is_reader"].get<bool>() == true);
-    BOOST_TEST(json.contains("is_writer"));
-    BOOST_TEST(json["is_writer"].get<bool>() == true);
+    BOOST_TEST(json.contains("ruleId"));
+    BOOST_TEST(json["ruleId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("itemTypeId"));
+    BOOST_TEST(json["itemTypeId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("isReader"));
+    BOOST_TEST(json["isReader"].get<bool>() == true);
+    BOOST_TEST(json.contains("isWriter"));
+    BOOST_TEST(json["isWriter"].get<bool>() == true);
 }
 
 // Тест: десериализация из JSON
@@ -146,10 +146,10 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["rule_id"] = 42;
-    json["item_type_id"] = 42;
-    json["is_reader"] = true;
-    json["is_writer"] = true;
+    json["ruleId"] = 42;
+    json["itemTypeId"] = 42;
+    json["isReader"] = true;
+    json["isWriter"] = true;
 
     RuleItemType dto(json);
 

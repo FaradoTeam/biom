@@ -185,20 +185,20 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("workflow_id"));
-    BOOST_TEST(json["workflow_id"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("workflowId"));
+    BOOST_TEST(json["workflowId"].get<int64_t>() == 42);
     BOOST_TEST(json.contains("caption"));
     BOOST_TEST(json["caption"].get<std::string>() == "test_caption");
     BOOST_TEST(json.contains("description"));
     BOOST_TEST(json["description"].get<std::string>() == "test_description");
     BOOST_TEST(json.contains("weight"));
     BOOST_TEST(json["weight"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("order_number"));
-    BOOST_TEST(json["order_number"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("is_archive"));
-    BOOST_TEST(json["is_archive"].get<bool>() == true);
-    BOOST_TEST(json.contains("is_queue"));
-    BOOST_TEST(json["is_queue"].get<bool>() == true);
+    BOOST_TEST(json.contains("orderNumber"));
+    BOOST_TEST(json["orderNumber"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("isArchive"));
+    BOOST_TEST(json["isArchive"].get<bool>() == true);
+    BOOST_TEST(json.contains("isQueue"));
+    BOOST_TEST(json["isQueue"].get<bool>() == true);
 }
 
 // Тест: десериализация из JSON
@@ -206,13 +206,13 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["workflow_id"] = 42;
+    json["workflowId"] = 42;
     json["caption"] = "test_caption";
     json["description"] = "test_description";
     json["weight"] = 42;
-    json["order_number"] = 42;
-    json["is_archive"] = true;
-    json["is_queue"] = true;
+    json["orderNumber"] = 42;
+    json["isArchive"] = true;
+    json["isQueue"] = true;
 
     State dto(json);
 

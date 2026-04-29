@@ -149,12 +149,12 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("workflow_id"));
-    BOOST_TEST(json["workflow_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("project_id"));
-    BOOST_TEST(json["project_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("phase_id"));
-    BOOST_TEST(json["phase_id"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("workflowId"));
+    BOOST_TEST(json["workflowId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("projectId"));
+    BOOST_TEST(json["projectId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("phaseId"));
+    BOOST_TEST(json["phaseId"].get<int64_t>() == 42);
     BOOST_TEST(json.contains("caption"));
     BOOST_TEST(json["caption"].get<std::string>() == "test_caption");
     BOOST_TEST(json.contains("description"));
@@ -166,9 +166,9 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["workflow_id"] = 42;
-    json["project_id"] = 42;
-    json["phase_id"] = 42;
+    json["workflowId"] = 42;
+    json["projectId"] = 42;
+    json["phaseId"] = 42;
     json["caption"] = "test_caption";
     json["description"] = "test_description";
 

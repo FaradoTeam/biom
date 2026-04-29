@@ -185,20 +185,20 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("item_type_id"));
-    BOOST_TEST(json["item_type_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("parent_id"));
-    BOOST_TEST(json["parent_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("state_id"));
-    BOOST_TEST(json["state_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("phase_id"));
-    BOOST_TEST(json["phase_id"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("itemTypeId"));
+    BOOST_TEST(json["itemTypeId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("parentId"));
+    BOOST_TEST(json["parentId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("stateId"));
+    BOOST_TEST(json["stateId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("phaseId"));
+    BOOST_TEST(json["phaseId"].get<int64_t>() == 42);
     BOOST_TEST(json.contains("caption"));
     BOOST_TEST(json["caption"].get<std::string>() == "test_caption");
     BOOST_TEST(json.contains("content"));
     BOOST_TEST(json["content"].get<std::string>() == "test_content");
-    BOOST_TEST(json.contains("is_deleted"));
-    BOOST_TEST(json["is_deleted"].get<bool>() == true);
+    BOOST_TEST(json.contains("isDeleted"));
+    BOOST_TEST(json["isDeleted"].get<bool>() == true);
 }
 
 // Тест: десериализация из JSON
@@ -206,13 +206,13 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["item_type_id"] = 42;
-    json["parent_id"] = 42;
-    json["state_id"] = 42;
-    json["phase_id"] = 42;
+    json["itemTypeId"] = 42;
+    json["parentId"] = 42;
+    json["stateId"] = 42;
+    json["phaseId"] = 42;
     json["caption"] = "test_caption";
     json["content"] = "test_content";
-    json["is_deleted"] = true;
+    json["isDeleted"] = true;
 
     Item dto(json);
 

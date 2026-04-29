@@ -173,18 +173,18 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("project_id"));
-    BOOST_TEST(json["project_id"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("projectId"));
+    BOOST_TEST(json["projectId"].get<int64_t>() == 42);
     BOOST_TEST(json.contains("caption"));
     BOOST_TEST(json["caption"].get<std::string>() == "test_caption");
     BOOST_TEST(json.contains("description"));
     BOOST_TEST(json["description"].get<std::string>() == "test_description");
-    BOOST_TEST(json.contains("begin_date"));
-    BOOST_TEST(json["begin_date"].get<int64_t>() == 1640995200);
-    BOOST_TEST(json.contains("end_date"));
-    BOOST_TEST(json["end_date"].get<int64_t>() == 1640995200);
-    BOOST_TEST(json.contains("is_archive"));
-    BOOST_TEST(json["is_archive"].get<bool>() == true);
+    BOOST_TEST(json.contains("beginDate"));
+    BOOST_TEST(json["beginDate"].get<int64_t>() == 1640995200);
+    BOOST_TEST(json.contains("endDate"));
+    BOOST_TEST(json["endDate"].get<int64_t>() == 1640995200);
+    BOOST_TEST(json.contains("isArchive"));
+    BOOST_TEST(json["isArchive"].get<bool>() == true);
 }
 
 // Тест: десериализация из JSON
@@ -192,12 +192,12 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["project_id"] = 42;
+    json["projectId"] = 42;
     json["caption"] = "test_caption";
     json["description"] = "test_description";
-    json["begin_date"] = 1640995200;
-    json["end_date"] = 1640995200;
-    json["is_archive"] = true;
+    json["beginDate"] = 1640995200;
+    json["endDate"] = 1640995200;
+    json["isArchive"] = true;
 
     Phase dto(json);
 

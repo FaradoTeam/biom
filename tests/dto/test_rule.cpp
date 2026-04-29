@@ -95,10 +95,10 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("role_id"));
-    BOOST_TEST(json["role_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("is_root_project_creator"));
-    BOOST_TEST(json["is_root_project_creator"].get<bool>() == true);
+    BOOST_TEST(json.contains("roleId"));
+    BOOST_TEST(json["roleId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("isRootProjectCreator"));
+    BOOST_TEST(json["isRootProjectCreator"].get<bool>() == true);
 }
 
 // Тест: десериализация из JSON
@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["role_id"] = 42;
-    json["is_root_project_creator"] = true;
+    json["roleId"] = 42;
+    json["isRootProjectCreator"] = true;
 
     Rule dto(json);
 

@@ -27,7 +27,7 @@ nlohmann::json UserAction::toJson() const
     // Идентификатор пользователя
     if (userId.has_value())
     {
-        result["user_id"] = userId.value();
+        result["userId"] = userId.value();
     }
     // Время действия
     if (timestamp.has_value())
@@ -69,11 +69,11 @@ bool UserAction::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор пользователя
-    if (json.contains("user_id") && !json["user_id"].is_null())
+    if (json.contains("userId") && !json["userId"].is_null())
     {
         try
         {
-            userId = json["user_id"].get<int64_t>();
+            userId = json["userId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -165,7 +165,7 @@ std::string UserAction::validationError() const
 {
     if (!userId.has_value())
     {
-        return "Поле «user_id» является обязательным для заполнения";
+        return "Поле «userId» является обязательным для заполнения";
     }
     if (!timestamp.has_value())
     {

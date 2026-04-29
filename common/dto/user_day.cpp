@@ -27,7 +27,7 @@ nlohmann::json UserDay::toJson() const
     // Идентификатор пользователя
     if (userId.has_value())
     {
-        result["user_id"] = userId.value();
+        result["userId"] = userId.value();
     }
     // Дата (уникальна в паре с userId)
     if (date.has_value())
@@ -37,22 +37,22 @@ nlohmann::json UserDay::toJson() const
     // Является ли день рабочим для пользователя
     if (isWorkDay.has_value())
     {
-        result["is_work_day"] = isWorkDay.value();
+        result["isWorkDay"] = isWorkDay.value();
     }
     // Время начала работы (если рабочий)
     if (beginWorkTime.has_value())
     {
-        result["begin_work_time"] = beginWorkTime.value();
+        result["beginWorkTime"] = beginWorkTime.value();
     }
     // Время окончания работы (если рабочий)
     if (endWorkTime.has_value())
     {
-        result["end_work_time"] = endWorkTime.value();
+        result["endWorkTime"] = endWorkTime.value();
     }
     // Длительность перерыва в минутах
     if (breakDuration.has_value())
     {
-        result["break_duration"] = breakDuration.value();
+        result["breakDuration"] = breakDuration.value();
     }
     // Причина (отпуск
     if (description.has_value())
@@ -84,11 +84,11 @@ bool UserDay::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор пользователя
-    if (json.contains("user_id") && !json["user_id"].is_null())
+    if (json.contains("userId") && !json["userId"].is_null())
     {
         try
         {
-            userId = json["user_id"].get<int64_t>();
+            userId = json["userId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -117,11 +117,11 @@ bool UserDay::fromJson(const nlohmann::json& json)
         date = std::nullopt;
     }
     // Является ли день рабочим для пользователя
-    if (json.contains("is_work_day") && !json["is_work_day"].is_null())
+    if (json.contains("isWorkDay") && !json["isWorkDay"].is_null())
     {
         try
         {
-            isWorkDay = json["is_work_day"].get<bool>();
+            isWorkDay = json["isWorkDay"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -133,11 +133,11 @@ bool UserDay::fromJson(const nlohmann::json& json)
         isWorkDay = std::nullopt;
     }
     // Время начала работы (если рабочий)
-    if (json.contains("begin_work_time") && !json["begin_work_time"].is_null())
+    if (json.contains("beginWorkTime") && !json["beginWorkTime"].is_null())
     {
         try
         {
-            beginWorkTime = json["begin_work_time"].get<std::string>();
+            beginWorkTime = json["beginWorkTime"].get<std::string>();
         }
         catch (const std::exception& e)
         {
@@ -149,11 +149,11 @@ bool UserDay::fromJson(const nlohmann::json& json)
         beginWorkTime = std::nullopt;
     }
     // Время окончания работы (если рабочий)
-    if (json.contains("end_work_time") && !json["end_work_time"].is_null())
+    if (json.contains("endWorkTime") && !json["endWorkTime"].is_null())
     {
         try
         {
-            endWorkTime = json["end_work_time"].get<std::string>();
+            endWorkTime = json["endWorkTime"].get<std::string>();
         }
         catch (const std::exception& e)
         {
@@ -165,11 +165,11 @@ bool UserDay::fromJson(const nlohmann::json& json)
         endWorkTime = std::nullopt;
     }
     // Длительность перерыва в минутах
-    if (json.contains("break_duration") && !json["break_duration"].is_null())
+    if (json.contains("breakDuration") && !json["breakDuration"].is_null())
     {
         try
         {
-            breakDuration = json["break_duration"].get<int64_t>();
+            breakDuration = json["breakDuration"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -220,7 +220,7 @@ std::string UserDay::validationError() const
 {
     if (!userId.has_value())
     {
-        return "Поле «user_id» является обязательным для заполнения";
+        return "Поле «userId» является обязательным для заполнения";
     }
     if (!date.has_value())
     {

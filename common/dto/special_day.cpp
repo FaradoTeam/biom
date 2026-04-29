@@ -32,22 +32,22 @@ nlohmann::json SpecialDay::toJson() const
     // Является ли день рабочим
     if (isWorkDay.has_value())
     {
-        result["is_work_day"] = isWorkDay.value();
+        result["isWorkDay"] = isWorkDay.value();
     }
     // Время начала работы (если рабочий)
     if (beginWorkTime.has_value())
     {
-        result["begin_work_time"] = beginWorkTime.value();
+        result["beginWorkTime"] = beginWorkTime.value();
     }
     // Время окончания работы (если рабочий)
     if (endWorkTime.has_value())
     {
-        result["end_work_time"] = endWorkTime.value();
+        result["endWorkTime"] = endWorkTime.value();
     }
     // Длительность перерыва в минутах
     if (breakDuration.has_value())
     {
-        result["break_duration"] = breakDuration.value();
+        result["breakDuration"] = breakDuration.value();
     }
 
     return result;
@@ -91,11 +91,11 @@ bool SpecialDay::fromJson(const nlohmann::json& json)
         date = std::nullopt;
     }
     // Является ли день рабочим
-    if (json.contains("is_work_day") && !json["is_work_day"].is_null())
+    if (json.contains("isWorkDay") && !json["isWorkDay"].is_null())
     {
         try
         {
-            isWorkDay = json["is_work_day"].get<bool>();
+            isWorkDay = json["isWorkDay"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -107,11 +107,11 @@ bool SpecialDay::fromJson(const nlohmann::json& json)
         isWorkDay = std::nullopt;
     }
     // Время начала работы (если рабочий)
-    if (json.contains("begin_work_time") && !json["begin_work_time"].is_null())
+    if (json.contains("beginWorkTime") && !json["beginWorkTime"].is_null())
     {
         try
         {
-            beginWorkTime = json["begin_work_time"].get<std::string>();
+            beginWorkTime = json["beginWorkTime"].get<std::string>();
         }
         catch (const std::exception& e)
         {
@@ -123,11 +123,11 @@ bool SpecialDay::fromJson(const nlohmann::json& json)
         beginWorkTime = std::nullopt;
     }
     // Время окончания работы (если рабочий)
-    if (json.contains("end_work_time") && !json["end_work_time"].is_null())
+    if (json.contains("endWorkTime") && !json["endWorkTime"].is_null())
     {
         try
         {
-            endWorkTime = json["end_work_time"].get<std::string>();
+            endWorkTime = json["endWorkTime"].get<std::string>();
         }
         catch (const std::exception& e)
         {
@@ -139,11 +139,11 @@ bool SpecialDay::fromJson(const nlohmann::json& json)
         endWorkTime = std::nullopt;
     }
     // Длительность перерыва в минутах
-    if (json.contains("break_duration") && !json["break_duration"].is_null())
+    if (json.contains("breakDuration") && !json["breakDuration"].is_null())
     {
         try
         {
-            breakDuration = json["break_duration"].get<int64_t>();
+            breakDuration = json["breakDuration"].get<int64_t>();
         }
         catch (const std::exception& e)
         {

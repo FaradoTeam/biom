@@ -113,10 +113,10 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("item_id"));
-    BOOST_TEST(json["item_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("field_type_id"));
-    BOOST_TEST(json["field_type_id"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("itemId"));
+    BOOST_TEST(json["itemId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("fieldTypeId"));
+    BOOST_TEST(json["fieldTypeId"].get<int64_t>() == 42);
     BOOST_TEST(json.contains("value"));
     BOOST_TEST(json["value"].get<std::string>() == "test_value");
 }
@@ -126,8 +126,8 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["item_id"] = 42;
-    json["field_type_id"] = 42;
+    json["itemId"] = 42;
+    json["fieldTypeId"] = 42;
     json["value"] = "test_value";
 
     ItemField dto(json);

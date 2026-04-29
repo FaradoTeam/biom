@@ -141,9 +141,9 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Поле: isWorkDay
     dto.isWorkDay = true;
     // Поле: beginWorkTime
-    dto.beginWorkTime = "test_begin_work_time";
+    dto.beginWorkTime = "test_beginWorkTime";
     // Поле: endWorkTime
-    dto.endWorkTime = "test_end_work_time";
+    dto.endWorkTime = "test_endWorkTime";
     // Поле: breakDuration
     dto.breakDuration = 42;
 
@@ -154,14 +154,14 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     BOOST_TEST(json["id"].get<int64_t>() == 42);
     BOOST_TEST(json.contains("date"));
     BOOST_TEST(json["date"].get<int64_t>() == 1640995200);
-    BOOST_TEST(json.contains("is_work_day"));
-    BOOST_TEST(json["is_work_day"].get<bool>() == true);
-    BOOST_TEST(json.contains("begin_work_time"));
-    BOOST_TEST(json["begin_work_time"].get<std::string>() == "test_begin_work_time");
-    BOOST_TEST(json.contains("end_work_time"));
-    BOOST_TEST(json["end_work_time"].get<std::string>() == "test_end_work_time");
-    BOOST_TEST(json.contains("break_duration"));
-    BOOST_TEST(json["break_duration"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("isWorkDay"));
+    BOOST_TEST(json["isWorkDay"].get<bool>() == true);
+    BOOST_TEST(json.contains("beginWorkTime"));
+    BOOST_TEST(json["beginWorkTime"].get<std::string>() == "test_beginWorkTime");
+    BOOST_TEST(json.contains("endWorkTime"));
+    BOOST_TEST(json["endWorkTime"].get<std::string>() == "test_endWorkTime");
+    BOOST_TEST(json.contains("breakDuration"));
+    BOOST_TEST(json["breakDuration"].get<int64_t>() == 42);
 }
 
 // Тест: десериализация из JSON
@@ -170,10 +170,10 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
     json["date"] = 1640995200;
-    json["is_work_day"] = true;
-    json["begin_work_time"] = "test_begin_work_time";
-    json["end_work_time"] = "test_end_work_time";
-    json["break_duration"] = 42;
+    json["isWorkDay"] = true;
+    json["beginWorkTime"] = "test_beginWorkTime";
+    json["endWorkTime"] = "test_endWorkTime";
+    json["breakDuration"] = 42;
 
     SpecialDay dto(json);
 
@@ -185,9 +185,9 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
     BOOST_TEST(dto.isWorkDay.has_value());
     BOOST_TEST(dto.isWorkDay.value() == true);
     BOOST_TEST(dto.beginWorkTime.has_value());
-    BOOST_TEST(dto.beginWorkTime.value() == "test_begin_work_time");
+    BOOST_TEST(dto.beginWorkTime.value() == "test_beginWorkTime");
     BOOST_TEST(dto.endWorkTime.has_value());
-    BOOST_TEST(dto.endWorkTime.value() == "test_end_work_time");
+    BOOST_TEST(dto.endWorkTime.value() == "test_endWorkTime");
     BOOST_TEST(dto.breakDuration.has_value());
     BOOST_TEST(dto.breakDuration.value() == 42);
 }
@@ -204,9 +204,9 @@ BOOST_AUTO_TEST_CASE(RoundTripSerialization)
     // Поле: isWorkDay
     original.isWorkDay = true;
     // Поле: beginWorkTime
-    original.beginWorkTime = "test_begin_work_time";
+    original.beginWorkTime = "test_beginWorkTime";
     // Поле: endWorkTime
-    original.endWorkTime = "test_end_work_time";
+    original.endWorkTime = "test_endWorkTime";
     // Поле: breakDuration
     original.breakDuration = 42;
 

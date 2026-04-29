@@ -52,17 +52,17 @@ nlohmann::json Document::toJson() const
     // MIME-тип файла
     if (mimeType.has_value())
     {
-        result["mime_type"] = mimeType.value();
+        result["mimeType"] = mimeType.value();
     }
     // Время загрузки
     if (uploadedAt.has_value())
     {
-        result["uploaded_at"] = timePointToSeconds(uploadedAt.value());
+        result["uploadedAt"] = timePointToSeconds(uploadedAt.value());
     }
     // Идентификатор пользователя
     if (uploadedByUserId.has_value())
     {
-        result["uploaded_by_user_id"] = uploadedByUserId.value();
+        result["uploadedByUserId"] = uploadedByUserId.value();
     }
 
     return result;
@@ -169,11 +169,11 @@ bool Document::fromJson(const nlohmann::json& json)
         size = std::nullopt;
     }
     // MIME-тип файла
-    if (json.contains("mime_type") && !json["mime_type"].is_null())
+    if (json.contains("mimeType") && !json["mimeType"].is_null())
     {
         try
         {
-            mimeType = json["mime_type"].get<std::string>();
+            mimeType = json["mimeType"].get<std::string>();
         }
         catch (const std::exception& e)
         {
@@ -185,11 +185,11 @@ bool Document::fromJson(const nlohmann::json& json)
         mimeType = std::nullopt;
     }
     // Время загрузки
-    if (json.contains("uploaded_at") && !json["uploaded_at"].is_null())
+    if (json.contains("uploadedAt") && !json["uploadedAt"].is_null())
     {
         try
         {
-            auto timestampValue = json["uploaded_at"].get<int64_t>();
+            auto timestampValue = json["uploadedAt"].get<int64_t>();
             uploadedAt = secondsToTimePoint(timestampValue);
         }
         catch (const std::exception& e)
@@ -202,11 +202,11 @@ bool Document::fromJson(const nlohmann::json& json)
         uploadedAt = std::nullopt;
     }
     // Идентификатор пользователя
-    if (json.contains("uploaded_by_user_id") && !json["uploaded_by_user_id"].is_null())
+    if (json.contains("uploadedByUserId") && !json["uploadedByUserId"].is_null())
     {
         try
         {
-            uploadedByUserId = json["uploaded_by_user_id"].get<int64_t>();
+            uploadedByUserId = json["uploadedByUserId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {

@@ -27,7 +27,7 @@ nlohmann::json State::toJson() const
     // Идентификатор рабочего процесса
     if (workflowId.has_value())
     {
-        result["workflow_id"] = workflowId.value();
+        result["workflowId"] = workflowId.value();
     }
     // Название состояния
     if (caption.has_value())
@@ -47,17 +47,17 @@ nlohmann::json State::toJson() const
     // Порядковый номер для сортировки
     if (orderNumber.has_value())
     {
-        result["order_number"] = orderNumber.value();
+        result["orderNumber"] = orderNumber.value();
     }
     // Флаг архивного состояния (редко отображается)
     if (isArchive.has_value())
     {
-        result["is_archive"] = isArchive.value();
+        result["isArchive"] = isArchive.value();
     }
     // Флаг очереди (для определения активных работ)
     if (isQueue.has_value())
     {
-        result["is_queue"] = isQueue.value();
+        result["isQueue"] = isQueue.value();
     }
 
     return result;
@@ -84,11 +84,11 @@ bool State::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор рабочего процесса
-    if (json.contains("workflow_id") && !json["workflow_id"].is_null())
+    if (json.contains("workflowId") && !json["workflowId"].is_null())
     {
         try
         {
-            workflowId = json["workflow_id"].get<int64_t>();
+            workflowId = json["workflowId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -148,11 +148,11 @@ bool State::fromJson(const nlohmann::json& json)
         weight = std::nullopt;
     }
     // Порядковый номер для сортировки
-    if (json.contains("order_number") && !json["order_number"].is_null())
+    if (json.contains("orderNumber") && !json["orderNumber"].is_null())
     {
         try
         {
-            orderNumber = json["order_number"].get<int64_t>();
+            orderNumber = json["orderNumber"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -164,11 +164,11 @@ bool State::fromJson(const nlohmann::json& json)
         orderNumber = std::nullopt;
     }
     // Флаг архивного состояния (редко отображается)
-    if (json.contains("is_archive") && !json["is_archive"].is_null())
+    if (json.contains("isArchive") && !json["isArchive"].is_null())
     {
         try
         {
-            isArchive = json["is_archive"].get<bool>();
+            isArchive = json["isArchive"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -180,11 +180,11 @@ bool State::fromJson(const nlohmann::json& json)
         isArchive = std::nullopt;
     }
     // Флаг очереди (для определения активных работ)
-    if (json.contains("is_queue") && !json["is_queue"].is_null())
+    if (json.contains("isQueue") && !json["isQueue"].is_null())
     {
         try
         {
-            isQueue = json["is_queue"].get<bool>();
+            isQueue = json["isQueue"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -223,7 +223,7 @@ std::string State::validationError() const
 {
     if (!workflowId.has_value())
     {
-        return "Поле «workflow_id» является обязательным для заполнения";
+        return "Поле «workflowId» является обязательным для заполнения";
     }
     if (!caption.has_value())
     {

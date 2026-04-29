@@ -27,17 +27,17 @@ nlohmann::json BoardColumn::toJson() const
     // Идентификатор доски
     if (boardId.has_value())
     {
-        result["board_id"] = boardId.value();
+        result["boardId"] = boardId.value();
     }
     // Идентификатор состояния
     if (stateId.has_value())
     {
-        result["state_id"] = stateId.value();
+        result["stateId"] = stateId.value();
     }
     // Порядковый номер колонки на доске
     if (orderNumber.has_value())
     {
-        result["order_number"] = orderNumber.value();
+        result["orderNumber"] = orderNumber.value();
     }
     // JSON с настройками (WIP limit
     if (settings.has_value())
@@ -69,11 +69,11 @@ bool BoardColumn::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор доски
-    if (json.contains("board_id") && !json["board_id"].is_null())
+    if (json.contains("boardId") && !json["boardId"].is_null())
     {
         try
         {
-            boardId = json["board_id"].get<int64_t>();
+            boardId = json["boardId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -85,11 +85,11 @@ bool BoardColumn::fromJson(const nlohmann::json& json)
         boardId = std::nullopt;
     }
     // Идентификатор состояния
-    if (json.contains("state_id") && !json["state_id"].is_null())
+    if (json.contains("stateId") && !json["stateId"].is_null())
     {
         try
         {
-            stateId = json["state_id"].get<int64_t>();
+            stateId = json["stateId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -101,11 +101,11 @@ bool BoardColumn::fromJson(const nlohmann::json& json)
         stateId = std::nullopt;
     }
     // Порядковый номер колонки на доске
-    if (json.contains("order_number") && !json["order_number"].is_null())
+    if (json.contains("orderNumber") && !json["orderNumber"].is_null())
     {
         try
         {
-            orderNumber = json["order_number"].get<int64_t>();
+            orderNumber = json["orderNumber"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -160,15 +160,15 @@ std::string BoardColumn::validationError() const
 {
     if (!boardId.has_value())
     {
-        return "Поле «board_id» является обязательным для заполнения";
+        return "Поле «boardId» является обязательным для заполнения";
     }
     if (!stateId.has_value())
     {
-        return "Поле «state_id» является обязательным для заполнения";
+        return "Поле «stateId» является обязательным для заполнения";
     }
     if (!orderNumber.has_value())
     {
-        return "Поле «order_number» является обязательным для заполнения";
+        return "Поле «orderNumber» является обязательным для заполнения";
     }
 
 

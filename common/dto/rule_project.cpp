@@ -27,37 +27,37 @@ nlohmann::json RuleProject::toJson() const
     // Идентификатор правила
     if (ruleId.has_value())
     {
-        result["rule_id"] = ruleId.value();
+        result["ruleId"] = ruleId.value();
     }
     // Идентификатор проекта
     if (projectId.has_value())
     {
-        result["project_id"] = projectId.value();
+        result["projectId"] = projectId.value();
     }
     // Право на просмотр элементов (items) проекта
     if (isReader.has_value())
     {
-        result["is_reader"] = isReader.value();
+        result["isReader"] = isReader.value();
     }
     // Право на создание и изменение элементов (items) проекта
     if (isWriter.has_value())
     {
-        result["is_writer"] = isWriter.value();
+        result["isWriter"] = isWriter.value();
     }
     // Право на создание и изменение подпроектов
     if (isProjectEditor.has_value())
     {
-        result["is_project_editor"] = isProjectEditor.value();
+        result["isProjectEditor"] = isProjectEditor.value();
     }
     // Право на создание и изменение фаз
     if (isPhaseEditor.has_value())
     {
-        result["is_phase_editor"] = isPhaseEditor.value();
+        result["isPhaseEditor"] = isPhaseEditor.value();
     }
     // Право на создание и изменение досок
     if (isBoardEditor.has_value())
     {
-        result["is_board_editor"] = isBoardEditor.value();
+        result["isBoardEditor"] = isBoardEditor.value();
     }
 
     return result;
@@ -84,11 +84,11 @@ bool RuleProject::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор правила
-    if (json.contains("rule_id") && !json["rule_id"].is_null())
+    if (json.contains("ruleId") && !json["ruleId"].is_null())
     {
         try
         {
-            ruleId = json["rule_id"].get<int64_t>();
+            ruleId = json["ruleId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -100,11 +100,11 @@ bool RuleProject::fromJson(const nlohmann::json& json)
         ruleId = std::nullopt;
     }
     // Идентификатор проекта
-    if (json.contains("project_id") && !json["project_id"].is_null())
+    if (json.contains("projectId") && !json["projectId"].is_null())
     {
         try
         {
-            projectId = json["project_id"].get<int64_t>();
+            projectId = json["projectId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -116,11 +116,11 @@ bool RuleProject::fromJson(const nlohmann::json& json)
         projectId = std::nullopt;
     }
     // Право на просмотр элементов (items) проекта
-    if (json.contains("is_reader") && !json["is_reader"].is_null())
+    if (json.contains("isReader") && !json["isReader"].is_null())
     {
         try
         {
-            isReader = json["is_reader"].get<bool>();
+            isReader = json["isReader"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -132,11 +132,11 @@ bool RuleProject::fromJson(const nlohmann::json& json)
         isReader = std::nullopt;
     }
     // Право на создание и изменение элементов (items) проекта
-    if (json.contains("is_writer") && !json["is_writer"].is_null())
+    if (json.contains("isWriter") && !json["isWriter"].is_null())
     {
         try
         {
-            isWriter = json["is_writer"].get<bool>();
+            isWriter = json["isWriter"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -148,11 +148,11 @@ bool RuleProject::fromJson(const nlohmann::json& json)
         isWriter = std::nullopt;
     }
     // Право на создание и изменение подпроектов
-    if (json.contains("is_project_editor") && !json["is_project_editor"].is_null())
+    if (json.contains("isProjectEditor") && !json["isProjectEditor"].is_null())
     {
         try
         {
-            isProjectEditor = json["is_project_editor"].get<bool>();
+            isProjectEditor = json["isProjectEditor"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -164,11 +164,11 @@ bool RuleProject::fromJson(const nlohmann::json& json)
         isProjectEditor = std::nullopt;
     }
     // Право на создание и изменение фаз
-    if (json.contains("is_phase_editor") && !json["is_phase_editor"].is_null())
+    if (json.contains("isPhaseEditor") && !json["isPhaseEditor"].is_null())
     {
         try
         {
-            isPhaseEditor = json["is_phase_editor"].get<bool>();
+            isPhaseEditor = json["isPhaseEditor"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -180,11 +180,11 @@ bool RuleProject::fromJson(const nlohmann::json& json)
         isPhaseEditor = std::nullopt;
     }
     // Право на создание и изменение досок
-    if (json.contains("is_board_editor") && !json["is_board_editor"].is_null())
+    if (json.contains("isBoardEditor") && !json["isBoardEditor"].is_null())
     {
         try
         {
-            isBoardEditor = json["is_board_editor"].get<bool>();
+            isBoardEditor = json["isBoardEditor"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -219,11 +219,11 @@ std::string RuleProject::validationError() const
 {
     if (!ruleId.has_value())
     {
-        return "Поле «rule_id» является обязательным для заполнения";
+        return "Поле «ruleId» является обязательным для заполнения";
     }
     if (!projectId.has_value())
     {
-        return "Поле «project_id» является обязательным для заполнения";
+        return "Поле «projectId» является обязательным для заполнения";
     }
 
 

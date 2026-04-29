@@ -27,7 +27,7 @@ nlohmann::json FieldType::toJson() const
     // Идентификатор типа элемента
     if (itemTypeId.has_value())
     {
-        result["item_type_id"] = itemTypeId.value();
+        result["itemTypeId"] = itemTypeId.value();
     }
     // Название поля
     if (caption.has_value())
@@ -42,12 +42,12 @@ nlohmann::json FieldType::toJson() const
     // Тип значения
     if (valueType.has_value())
     {
-        result["value_type"] = valueType.value();
+        result["valueType"] = valueType.value();
     }
     // Отображать поле на канбан-доске
     if (isBoardVisible.has_value())
     {
-        result["is_board_visible"] = isBoardVisible.value();
+        result["isBoardVisible"] = isBoardVisible.value();
     }
 
     return result;
@@ -74,11 +74,11 @@ bool FieldType::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор типа элемента
-    if (json.contains("item_type_id") && !json["item_type_id"].is_null())
+    if (json.contains("itemTypeId") && !json["itemTypeId"].is_null())
     {
         try
         {
-            itemTypeId = json["item_type_id"].get<int64_t>();
+            itemTypeId = json["itemTypeId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -122,11 +122,11 @@ bool FieldType::fromJson(const nlohmann::json& json)
         description = std::nullopt;
     }
     // Тип значения
-    if (json.contains("value_type") && !json["value_type"].is_null())
+    if (json.contains("valueType") && !json["valueType"].is_null())
     {
         try
         {
-            valueType = json["value_type"].get<std::string>();
+            valueType = json["valueType"].get<std::string>();
         }
         catch (const std::exception& e)
         {
@@ -138,11 +138,11 @@ bool FieldType::fromJson(const nlohmann::json& json)
         valueType = std::nullopt;
     }
     // Отображать поле на канбан-доске
-    if (json.contains("is_board_visible") && !json["is_board_visible"].is_null())
+    if (json.contains("isBoardVisible") && !json["isBoardVisible"].is_null())
     {
         try
         {
-            isBoardVisible = json["is_board_visible"].get<bool>();
+            isBoardVisible = json["isBoardVisible"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -189,7 +189,7 @@ std::string FieldType::validationError() const
 {
     if (!itemTypeId.has_value())
     {
-        return "Поле «item_type_id» является обязательным для заполнения";
+        return "Поле «itemTypeId» является обязательным для заполнения";
     }
     if (!caption.has_value())
     {
@@ -197,7 +197,7 @@ std::string FieldType::validationError() const
     }
     if (!valueType.has_value())
     {
-        return "Поле «value_type» является обязательным для заполнения";
+        return "Поле «valueType» является обязательным для заполнения";
     }
 
     if (caption.value().empty())
@@ -206,7 +206,7 @@ std::string FieldType::validationError() const
     }
     if (valueType.value().empty())
     {
-        return "Поле «value_type» не может быть пустой строкой";
+        return "Поле «valueType» не может быть пустой строкой";
     }
 
     return "";

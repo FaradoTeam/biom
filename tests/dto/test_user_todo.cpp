@@ -137,14 +137,14 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("item_id"));
-    BOOST_TEST(json["item_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("user_id"));
-    BOOST_TEST(json["user_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("start_date"));
-    BOOST_TEST(json["start_date"].get<int64_t>() == 1640995200);
-    BOOST_TEST(json.contains("end_date"));
-    BOOST_TEST(json["end_date"].get<int64_t>() == 1640995200);
+    BOOST_TEST(json.contains("itemId"));
+    BOOST_TEST(json["itemId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("userId"));
+    BOOST_TEST(json["userId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("startDate"));
+    BOOST_TEST(json["startDate"].get<int64_t>() == 1640995200);
+    BOOST_TEST(json.contains("endDate"));
+    BOOST_TEST(json["endDate"].get<int64_t>() == 1640995200);
 }
 
 // Тест: десериализация из JSON
@@ -152,10 +152,10 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["item_id"] = 42;
-    json["user_id"] = 42;
-    json["start_date"] = 1640995200;
-    json["end_date"] = 1640995200;
+    json["itemId"] = 42;
+    json["userId"] = 42;
+    json["startDate"] = 1640995200;
+    json["endDate"] = 1640995200;
 
     UserTodo dto(json);
 

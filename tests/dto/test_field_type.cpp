@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Поле: description
     dto.description = "test_description";
     // Поле: valueType
-    dto.valueType = "test_value_type";
+    dto.valueType = "test_valueType";
     // Поле: isBoardVisible
     dto.isBoardVisible = true;
 
@@ -149,16 +149,16 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("item_type_id"));
-    BOOST_TEST(json["item_type_id"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("itemTypeId"));
+    BOOST_TEST(json["itemTypeId"].get<int64_t>() == 42);
     BOOST_TEST(json.contains("caption"));
     BOOST_TEST(json["caption"].get<std::string>() == "test_caption");
     BOOST_TEST(json.contains("description"));
     BOOST_TEST(json["description"].get<std::string>() == "test_description");
-    BOOST_TEST(json.contains("value_type"));
-    BOOST_TEST(json["value_type"].get<std::string>() == "test_value_type");
-    BOOST_TEST(json.contains("is_board_visible"));
-    BOOST_TEST(json["is_board_visible"].get<bool>() == true);
+    BOOST_TEST(json.contains("valueType"));
+    BOOST_TEST(json["valueType"].get<std::string>() == "test_valueType");
+    BOOST_TEST(json.contains("isBoardVisible"));
+    BOOST_TEST(json["isBoardVisible"].get<bool>() == true);
 }
 
 // Тест: десериализация из JSON
@@ -166,11 +166,11 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["item_type_id"] = 42;
+    json["itemTypeId"] = 42;
     json["caption"] = "test_caption";
     json["description"] = "test_description";
-    json["value_type"] = "test_value_type";
-    json["is_board_visible"] = true;
+    json["valueType"] = "test_valueType";
+    json["isBoardVisible"] = true;
 
     FieldType dto(json);
 
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
     BOOST_TEST(dto.description.has_value());
     BOOST_TEST(dto.description.value() == "test_description");
     BOOST_TEST(dto.valueType.has_value());
-    BOOST_TEST(dto.valueType.value() == "test_value_type");
+    BOOST_TEST(dto.valueType.value() == "test_valueType");
     BOOST_TEST(dto.isBoardVisible.has_value());
     BOOST_TEST(dto.isBoardVisible.value() == true);
 }
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(RoundTripSerialization)
     // Поле: description
     original.description = "test_description";
     // Поле: valueType
-    original.valueType = "test_value_type";
+    original.valueType = "test_valueType";
     // Поле: isBoardVisible
     original.isBoardVisible = true;
 
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(Validation)
     // Заполняем обязательные поля
     dto.itemTypeId = 42;
     dto.caption = "test_caption";
-    dto.valueType = "test_value_type";
+    dto.valueType = "test_valueType";
 
     // Теперь должен быть валидным
     BOOST_TEST(dto.isValid());

@@ -200,11 +200,11 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Поле: login
     dto.login = "test_login";
     // Поле: firstName
-    dto.firstName = "test_first_name";
+    dto.firstName = "test_firstName";
     // Поле: middleName
-    dto.middleName = "test_middle_name";
+    dto.middleName = "test_middleName";
     // Поле: lastName
-    dto.lastName = "test_last_name";
+    dto.lastName = "test_lastName";
     // Поле: email
     dto.email = "test_email";
     // Поле: needChangePassword
@@ -223,22 +223,22 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     BOOST_TEST(json["id"].get<int64_t>() == 42);
     BOOST_TEST(json.contains("login"));
     BOOST_TEST(json["login"].get<std::string>() == "test_login");
-    BOOST_TEST(json.contains("first_name"));
-    BOOST_TEST(json["first_name"].get<std::string>() == "test_first_name");
-    BOOST_TEST(json.contains("middle_name"));
-    BOOST_TEST(json["middle_name"].get<std::string>() == "test_middle_name");
-    BOOST_TEST(json.contains("last_name"));
-    BOOST_TEST(json["last_name"].get<std::string>() == "test_last_name");
+    BOOST_TEST(json.contains("firstName"));
+    BOOST_TEST(json["firstName"].get<std::string>() == "test_firstName");
+    BOOST_TEST(json.contains("middleName"));
+    BOOST_TEST(json["middleName"].get<std::string>() == "test_middleName");
+    BOOST_TEST(json.contains("lastName"));
+    BOOST_TEST(json["lastName"].get<std::string>() == "test_lastName");
     BOOST_TEST(json.contains("email"));
     BOOST_TEST(json["email"].get<std::string>() == "test_email");
-    BOOST_TEST(json.contains("need_change_password"));
-    BOOST_TEST(json["need_change_password"].get<bool>() == true);
-    BOOST_TEST(json.contains("is_blocked"));
-    BOOST_TEST(json["is_blocked"].get<bool>() == true);
-    BOOST_TEST(json.contains("is_super_admin"));
-    BOOST_TEST(json["is_super_admin"].get<bool>() == true);
-    BOOST_TEST(json.contains("is_hidden"));
-    BOOST_TEST(json["is_hidden"].get<bool>() == true);
+    BOOST_TEST(json.contains("needChangePassword"));
+    BOOST_TEST(json["needChangePassword"].get<bool>() == true);
+    BOOST_TEST(json.contains("isBlocked"));
+    BOOST_TEST(json["isBlocked"].get<bool>() == true);
+    BOOST_TEST(json.contains("isSuperAdmin"));
+    BOOST_TEST(json["isSuperAdmin"].get<bool>() == true);
+    BOOST_TEST(json.contains("isHidden"));
+    BOOST_TEST(json["isHidden"].get<bool>() == true);
 }
 
 // Тест: десериализация из JSON
@@ -247,14 +247,14 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
     json["login"] = "test_login";
-    json["first_name"] = "test_first_name";
-    json["middle_name"] = "test_middle_name";
-    json["last_name"] = "test_last_name";
+    json["firstName"] = "test_firstName";
+    json["middleName"] = "test_middleName";
+    json["lastName"] = "test_lastName";
     json["email"] = "test_email";
-    json["need_change_password"] = true;
-    json["is_blocked"] = true;
-    json["is_super_admin"] = true;
-    json["is_hidden"] = true;
+    json["needChangePassword"] = true;
+    json["isBlocked"] = true;
+    json["isSuperAdmin"] = true;
+    json["isHidden"] = true;
 
     User dto(json);
 
@@ -264,11 +264,11 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
     BOOST_TEST(dto.login.has_value());
     BOOST_TEST(dto.login.value() == "test_login");
     BOOST_TEST(dto.firstName.has_value());
-    BOOST_TEST(dto.firstName.value() == "test_first_name");
+    BOOST_TEST(dto.firstName.value() == "test_firstName");
     BOOST_TEST(dto.middleName.has_value());
-    BOOST_TEST(dto.middleName.value() == "test_middle_name");
+    BOOST_TEST(dto.middleName.value() == "test_middleName");
     BOOST_TEST(dto.lastName.has_value());
-    BOOST_TEST(dto.lastName.value() == "test_last_name");
+    BOOST_TEST(dto.lastName.value() == "test_lastName");
     BOOST_TEST(dto.email.has_value());
     BOOST_TEST(dto.email.value() == "test_email");
     BOOST_TEST(dto.needChangePassword.has_value());
@@ -291,11 +291,11 @@ BOOST_AUTO_TEST_CASE(RoundTripSerialization)
     // Поле: login
     original.login = "test_login";
     // Поле: firstName
-    original.firstName = "test_first_name";
+    original.firstName = "test_firstName";
     // Поле: middleName
-    original.middleName = "test_middle_name";
+    original.middleName = "test_middleName";
     // Поле: lastName
-    original.lastName = "test_last_name";
+    original.lastName = "test_lastName";
     // Поле: email
     original.email = "test_email";
     // Поле: needChangePassword

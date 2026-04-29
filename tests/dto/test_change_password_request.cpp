@@ -68,33 +68,33 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     ChangePasswordRequest dto;
 
     // Поле: oldPassword
-    dto.oldPassword = "test_old_password";
+    dto.oldPassword = "test_oldPassword";
     // Поле: newPassword
-    dto.newPassword = "test_new_password";
+    dto.newPassword = "test_newPassword";
 
     nlohmann::json json = dto.toJson();
 
     // Проверка полей JSON
-    BOOST_TEST(json.contains("old_password"));
-    BOOST_TEST(json["old_password"].get<std::string>() == "test_old_password");
-    BOOST_TEST(json.contains("new_password"));
-    BOOST_TEST(json["new_password"].get<std::string>() == "test_new_password");
+    BOOST_TEST(json.contains("oldPassword"));
+    BOOST_TEST(json["oldPassword"].get<std::string>() == "test_oldPassword");
+    BOOST_TEST(json.contains("newPassword"));
+    BOOST_TEST(json["newPassword"].get<std::string>() == "test_newPassword");
 }
 
 // Тест: десериализация из JSON
 BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
-    json["old_password"] = "test_old_password";
-    json["new_password"] = "test_new_password";
+    json["oldPassword"] = "test_oldPassword";
+    json["newPassword"] = "test_newPassword";
 
     ChangePasswordRequest dto(json);
 
     // Проверка десериализованных значений
     BOOST_TEST(dto.oldPassword.has_value());
-    BOOST_TEST(dto.oldPassword.value() == "test_old_password");
+    BOOST_TEST(dto.oldPassword.value() == "test_oldPassword");
     BOOST_TEST(dto.newPassword.has_value());
-    BOOST_TEST(dto.newPassword.value() == "test_new_password");
+    BOOST_TEST(dto.newPassword.value() == "test_newPassword");
 }
 
 // Тест: Сериализация в оба конца
@@ -103,9 +103,9 @@ BOOST_AUTO_TEST_CASE(RoundTripSerialization)
     ChangePasswordRequest original;
 
     // Поле: oldPassword
-    original.oldPassword = "test_old_password";
+    original.oldPassword = "test_oldPassword";
     // Поле: newPassword
-    original.newPassword = "test_new_password";
+    original.newPassword = "test_newPassword";
 
     nlohmann::json json = original.toJson();
     ChangePasswordRequest deserialized(json);
@@ -126,8 +126,8 @@ BOOST_AUTO_TEST_CASE(Validation)
     BOOST_TEST(dto.validationError().find("обязательным") != std::string::npos);
 
     // Заполняем обязательные поля
-    dto.oldPassword = "test_old_password";
-    dto.newPassword = "test_new_password";
+    dto.oldPassword = "test_oldPassword";
+    dto.newPassword = "test_newPassword";
 
     // Теперь должен быть валидным
     BOOST_TEST(dto.isValid());

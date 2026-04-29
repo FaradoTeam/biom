@@ -185,20 +185,20 @@ BOOST_AUTO_TEST_CASE(ToJsonSerialization)
     // Проверка полей JSON
     BOOST_TEST(json.contains("id"));
     BOOST_TEST(json["id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("rule_id"));
-    BOOST_TEST(json["rule_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("project_id"));
-    BOOST_TEST(json["project_id"].get<int64_t>() == 42);
-    BOOST_TEST(json.contains("is_reader"));
-    BOOST_TEST(json["is_reader"].get<bool>() == true);
-    BOOST_TEST(json.contains("is_writer"));
-    BOOST_TEST(json["is_writer"].get<bool>() == true);
-    BOOST_TEST(json.contains("is_project_editor"));
-    BOOST_TEST(json["is_project_editor"].get<bool>() == true);
-    BOOST_TEST(json.contains("is_phase_editor"));
-    BOOST_TEST(json["is_phase_editor"].get<bool>() == true);
-    BOOST_TEST(json.contains("is_board_editor"));
-    BOOST_TEST(json["is_board_editor"].get<bool>() == true);
+    BOOST_TEST(json.contains("ruleId"));
+    BOOST_TEST(json["ruleId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("projectId"));
+    BOOST_TEST(json["projectId"].get<int64_t>() == 42);
+    BOOST_TEST(json.contains("isReader"));
+    BOOST_TEST(json["isReader"].get<bool>() == true);
+    BOOST_TEST(json.contains("isWriter"));
+    BOOST_TEST(json["isWriter"].get<bool>() == true);
+    BOOST_TEST(json.contains("isProjectEditor"));
+    BOOST_TEST(json["isProjectEditor"].get<bool>() == true);
+    BOOST_TEST(json.contains("isPhaseEditor"));
+    BOOST_TEST(json["isPhaseEditor"].get<bool>() == true);
+    BOOST_TEST(json.contains("isBoardEditor"));
+    BOOST_TEST(json["isBoardEditor"].get<bool>() == true);
 }
 
 // Тест: десериализация из JSON
@@ -206,13 +206,13 @@ BOOST_AUTO_TEST_CASE(FromJsonDeserialization)
 {
     nlohmann::json json = nlohmann::json::object();
     json["id"] = 42;
-    json["rule_id"] = 42;
-    json["project_id"] = 42;
-    json["is_reader"] = true;
-    json["is_writer"] = true;
-    json["is_project_editor"] = true;
-    json["is_phase_editor"] = true;
-    json["is_board_editor"] = true;
+    json["ruleId"] = 42;
+    json["projectId"] = 42;
+    json["isReader"] = true;
+    json["isWriter"] = true;
+    json["isProjectEditor"] = true;
+    json["isPhaseEditor"] = true;
+    json["isBoardEditor"] = true;
 
     RuleProject dto(json);
 

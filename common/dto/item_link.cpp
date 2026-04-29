@@ -27,17 +27,17 @@ nlohmann::json ItemLink::toJson() const
     // Идентификатор типа связи
     if (linkTypeId.has_value())
     {
-        result["link_type_id"] = linkTypeId.value();
+        result["linkTypeId"] = linkTypeId.value();
     }
     // Исходный элемент
     if (sourceItemId.has_value())
     {
-        result["source_item_id"] = sourceItemId.value();
+        result["sourceItemId"] = sourceItemId.value();
     }
     // Целевой элемент
     if (destinationItemId.has_value())
     {
-        result["destination_item_id"] = destinationItemId.value();
+        result["destinationItemId"] = destinationItemId.value();
     }
 
     return result;
@@ -64,11 +64,11 @@ bool ItemLink::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор типа связи
-    if (json.contains("link_type_id") && !json["link_type_id"].is_null())
+    if (json.contains("linkTypeId") && !json["linkTypeId"].is_null())
     {
         try
         {
-            linkTypeId = json["link_type_id"].get<int64_t>();
+            linkTypeId = json["linkTypeId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -80,11 +80,11 @@ bool ItemLink::fromJson(const nlohmann::json& json)
         linkTypeId = std::nullopt;
     }
     // Исходный элемент
-    if (json.contains("source_item_id") && !json["source_item_id"].is_null())
+    if (json.contains("sourceItemId") && !json["sourceItemId"].is_null())
     {
         try
         {
-            sourceItemId = json["source_item_id"].get<int64_t>();
+            sourceItemId = json["sourceItemId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -96,11 +96,11 @@ bool ItemLink::fromJson(const nlohmann::json& json)
         sourceItemId = std::nullopt;
     }
     // Целевой элемент
-    if (json.contains("destination_item_id") && !json["destination_item_id"].is_null())
+    if (json.contains("destinationItemId") && !json["destinationItemId"].is_null())
     {
         try
         {
-            destinationItemId = json["destination_item_id"].get<int64_t>();
+            destinationItemId = json["destinationItemId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -139,15 +139,15 @@ std::string ItemLink::validationError() const
 {
     if (!linkTypeId.has_value())
     {
-        return "Поле «link_type_id» является обязательным для заполнения";
+        return "Поле «linkTypeId» является обязательным для заполнения";
     }
     if (!sourceItemId.has_value())
     {
-        return "Поле «source_item_id» является обязательным для заполнения";
+        return "Поле «sourceItemId» является обязательным для заполнения";
     }
     if (!destinationItemId.has_value())
     {
-        return "Поле «destination_item_id» является обязательным для заполнения";
+        return "Поле «destinationItemId» является обязательным для заполнения";
     }
 
 

@@ -27,17 +27,17 @@ nlohmann::json PrivateMessage::toJson() const
     // Идентификатор отправителя
     if (senderUserId.has_value())
     {
-        result["sender_user_id"] = senderUserId.value();
+        result["senderUserId"] = senderUserId.value();
     }
     // Идентификатор получателя
     if (receiverUserId.has_value())
     {
-        result["receiver_user_id"] = receiverUserId.value();
+        result["receiverUserId"] = receiverUserId.value();
     }
     // Время отправки
     if (creationTimestamp.has_value())
     {
-        result["creation_timestamp"] = timePointToSeconds(creationTimestamp.value());
+        result["creationTimestamp"] = timePointToSeconds(creationTimestamp.value());
     }
     // Текст сообщения
     if (content.has_value())
@@ -47,7 +47,7 @@ nlohmann::json PrivateMessage::toJson() const
     // Флаг прочтения
     if (isViewed.has_value())
     {
-        result["is_viewed"] = isViewed.value();
+        result["isViewed"] = isViewed.value();
     }
 
     return result;
@@ -74,11 +74,11 @@ bool PrivateMessage::fromJson(const nlohmann::json& json)
         id = std::nullopt;
     }
     // Идентификатор отправителя
-    if (json.contains("sender_user_id") && !json["sender_user_id"].is_null())
+    if (json.contains("senderUserId") && !json["senderUserId"].is_null())
     {
         try
         {
-            senderUserId = json["sender_user_id"].get<int64_t>();
+            senderUserId = json["senderUserId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -90,11 +90,11 @@ bool PrivateMessage::fromJson(const nlohmann::json& json)
         senderUserId = std::nullopt;
     }
     // Идентификатор получателя
-    if (json.contains("receiver_user_id") && !json["receiver_user_id"].is_null())
+    if (json.contains("receiverUserId") && !json["receiverUserId"].is_null())
     {
         try
         {
-            receiverUserId = json["receiver_user_id"].get<int64_t>();
+            receiverUserId = json["receiverUserId"].get<int64_t>();
         }
         catch (const std::exception& e)
         {
@@ -106,11 +106,11 @@ bool PrivateMessage::fromJson(const nlohmann::json& json)
         receiverUserId = std::nullopt;
     }
     // Время отправки
-    if (json.contains("creation_timestamp") && !json["creation_timestamp"].is_null())
+    if (json.contains("creationTimestamp") && !json["creationTimestamp"].is_null())
     {
         try
         {
-            auto timestampValue = json["creation_timestamp"].get<int64_t>();
+            auto timestampValue = json["creationTimestamp"].get<int64_t>();
             creationTimestamp = secondsToTimePoint(timestampValue);
         }
         catch (const std::exception& e)
@@ -139,11 +139,11 @@ bool PrivateMessage::fromJson(const nlohmann::json& json)
         content = std::nullopt;
     }
     // Флаг прочтения
-    if (json.contains("is_viewed") && !json["is_viewed"].is_null())
+    if (json.contains("isViewed") && !json["isViewed"].is_null())
     {
         try
         {
-            isViewed = json["is_viewed"].get<bool>();
+            isViewed = json["isViewed"].get<bool>();
         }
         catch (const std::exception& e)
         {
@@ -190,15 +190,15 @@ std::string PrivateMessage::validationError() const
 {
     if (!senderUserId.has_value())
     {
-        return "Поле «sender_user_id» является обязательным для заполнения";
+        return "Поле «senderUserId» является обязательным для заполнения";
     }
     if (!receiverUserId.has_value())
     {
-        return "Поле «receiver_user_id» является обязательным для заполнения";
+        return "Поле «receiverUserId» является обязательным для заполнения";
     }
     if (!creationTimestamp.has_value())
     {
-        return "Поле «creation_timestamp» является обязательным для заполнения";
+        return "Поле «creationTimestamp» является обязательным для заполнения";
     }
     if (!content.has_value())
     {
