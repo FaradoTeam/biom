@@ -79,6 +79,7 @@ int main(int argc, char* argv[])
         CONFIG.fileLog.needThreadId,
         CONFIG.fileLog.dateTimeFormat,
         CONFIG.fileLog.severityLevel,
+        true,
         CONFIG.consoleLog.needSourceLocation,
         CONFIG.consoleLog.needThreadId,
         CONFIG.consoleLog.dateTimeFormat,

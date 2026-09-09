@@ -62,6 +62,9 @@
  * @param[in] fileSeverityLevel минимальный уровень важности фиксируемых
  *  сообщений в лог-файл.
  *
+ * @param[in] enableConsole флаг разрешающий вывод в консоль. Если false,
+ *  консольный логгер не создаётся.
+ *
  * @param[in] needConsoleSourceLocation флаг отвечает за вывод имени файла,
  *  номера строки и имени функции в исходном коде при записи в консоль.
  *
@@ -90,6 +93,7 @@ void initLog(
     const std::string& fileSeverityLevel = "info",
 
     // -- Console -- //
+    bool enableConsole = true,
     bool needConsoleSourceLocation = false,
     bool needConsoleThreadId = true,
     const std::string& consoleDateTimeFormat = "%Y-%m-%d %H:%M:%S.%f",

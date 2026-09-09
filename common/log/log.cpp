@@ -19,6 +19,7 @@ struct LogSettings final
     bool needFileThreadId = false;
     std::string fileDateTimeFormat;
     std::string fileSeverityLevel;
+    bool enableConsole = true;
     bool needConsoleSourceLocation = false;
     bool needConsoleThreadId = false;
     std::string consoleDateTimeFormat;
@@ -211,6 +212,7 @@ void initLog(
     bool needFileThreadId,
     const std::string& fileDateTimeFormat,
     const std::string& fileSeverityLevel,
+    bool enableConsole,
     bool needConsoleSourceLocation,
     bool needConsoleThreadId,
     const std::string& consoleDateTimeFormat,
@@ -221,6 +223,7 @@ void initLog(
     settings.needFileThreadId = needFileThreadId;
     settings.fileDateTimeFormat = fileDateTimeFormat;
     settings.fileSeverityLevel = fileSeverityLevel;
+    settings.enableConsole = enableConsole;
     settings.needConsoleSourceLocation = needConsoleSourceLocation;
     settings.needConsoleThreadId = needConsoleThreadId;
     settings.consoleDateTimeFormat = consoleDateTimeFormat;
@@ -234,13 +237,16 @@ void initLog(
     using namespace boost::log;
     add_common_attributes();
 
-    // Инициализация системы логирования для консоли.
-    const auto consoleSeverity = expressions::attr<trivial::severity_level>("Severity")
-        >= level(consoleSeverityLevel);
-    auto consoleLogger = add_console_log(
-        std::cout, keywords::filter = consoleSeverity
-    );
-    consoleLogger->set_formatter(&consoleFormatter);
+    // Инициализация системы логирования для консоли (если включена).
+    if (enableConsole)
+    {
+        const auto consoleSeverity = expressions::attr<trivial::severity_level>("Severity")
+            >= level(consoleSeverityLevel);
+        auto consoleLogger = add_console_log(
+            std::cout, keywords::filter = consoleSeverity
+        );
+        consoleLogger->set_formatter(&consoleFormatter);
+    }
 
     // Инициализация системы логирования в файл.
     const auto fileSeverity = expressions::attr<trivial::severity_level>("Severity")
