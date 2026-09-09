@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.15.7)
 # ---------------------------------------------------------------------------- #
 option(BUILD_VAULT_SERVER "Build Biome Vault Server" ON)
 option(BUILD_CLIENT "Build Biome Client" ON)
+option(BUILD_TERMINAL_CLIENT "Build Biome Terminal Client" ON)
 option(BUILD_MIGRATOR "Build database migration tool" ON)
 # ---------------------------------------------------------------------------- #
 
@@ -35,6 +36,10 @@ endif()
 
 if(BUILD_CLIENT)
     add_subdirectory(client)
+endif()
+
+if(BUILD_TERMINAL_CLIENT)
+    add_subdirectory(terminal-client)
 endif()
 
 if(BUILD_MIGRATOR)

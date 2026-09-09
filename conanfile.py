@@ -27,6 +27,7 @@ class BiomeConanFile(ConanFile):
         self.requires("qt/6.10.1")
         self.requires("libpq/17.7")
         self.requires("icu/74.2")
+        self.requires("ftxui/7.0.3")
 
     def layout(self):
         cmake_layout(self)
